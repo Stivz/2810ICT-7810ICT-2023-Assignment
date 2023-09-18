@@ -81,14 +81,8 @@ class PriceDistribution(wx.Frame):
 		self.SetSizer( bSizer1 )
 		self.Layout()
 		self.Centre( wx.BOTH )
-        self.m_button5.Bind(wx.EVT_BUTTON, self.on_back_button_click)
 
-
-
-
-
-
-
+		self.m_button5.Bind(wx.EVT_BUTTON, self.on_back_button_click)
 
 
 def on_back_button_click(self, event):
