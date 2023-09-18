@@ -30,7 +30,7 @@ class PriceDistribution(wx.Frame):
 		self.m_button5 = wx.Button( self, wx.ID_ANY, u"Back To Main Menu", wx.DefaultPosition, wx.DefaultSize, 0 )
 		gSizer51.Add( self.m_button5, 0, wx.ALIGN_CENTER|wx.ALIGN_CENTER_HORIZONTAL|wx.RIGHT, 5 )
 		bSizer18.Add( gSizer51, 1, 0, 5 )
-		bSizer12.Add( bSizer18, 1, wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND, 5 )
+		bSizer12.Add( bSizer18, 1, wx.EXPAND, 5 )
 		bSizer15 = wx.BoxSizer( wx.VERTICAL )
 
 		self.m_staticText7 = wx.StaticText( self, wx.ID_ANY, u"Sydney Stayz", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -42,7 +42,7 @@ class PriceDistribution(wx.Frame):
 		self.m_staticText2.Wrap( -1 )
 		self.m_staticText2.SetFont( wx.Font( 20, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, wx.EmptyString ) )
 		bSizer15.Add( self.m_staticText2, 0, wx.ALIGN_CENTER, 5 )
-		bSizer12.Add( bSizer15, 1, wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND, 5 )
+		bSizer12.Add( bSizer15, 1, wx.EXPAND, 5 )
 		bSizer19 = wx.BoxSizer( wx.HORIZONTAL )
 		gSizer2 = wx.GridSizer( 0, 1, 0, 0 )
 
@@ -85,12 +85,12 @@ class PriceDistribution(wx.Frame):
 		self.m_button5.Bind(wx.EVT_BUTTON, self.on_back_button_click)
 
 
-def on_back_button_click(self, event):
-    from Main_Menu import MainMenu  # Import the MainMenu class from Main_Menu.py
-    self.Close()
-    # Create and show a new instance of the MainMenu class
-    app = wx.App(False)
-    main_frame = MainMenu(None)
-    main_frame.Show()
-    app.MainLoop()
+	def on_back_button_click(self, event):
+		from Main_Menu import MainMenu  # Import the MainMenu class from Main_Menu.py
+		self.Close()
+		# Create and show a new instance of the MainMenu class
+		app = wx.App(False)
+		main_frame = MainMenu(None)
+		main_frame.Show()
+		app.MainLoop()
 

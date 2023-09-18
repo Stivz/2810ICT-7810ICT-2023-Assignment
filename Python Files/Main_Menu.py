@@ -90,8 +90,10 @@ class MainMenu(wx.Frame):
         self.Centre(wx.BOTH)
 
         self.top_rated_clicked = False  # Initialize the flag to False
+        self.price_distribution_button_clicked = False  # Initialize the flag to False
         # Bind the "Top Rated" button to the event handler
         self.m_button15.Bind(wx.EVT_BUTTON, self.on_top_rated_button_click)
+        self.m_button16.Bind(wx.EVT_BUTTON, self.on_price_distribution_button_click)
 
     def on_top_rated_button_click(self, event):
         # Set the flag to True when the button is clicked
@@ -103,8 +105,9 @@ class MainMenu(wx.Frame):
         self.Close()
 
     def on_price_distribution_button_click(self, event):
+        self.price_distribution_button_clicked = True
         # Create and show the PriceDistributionFrame
-        price_distribution_frame = PriceDistribution(None)
+        price_distribution_frame = PriceDistribution(None, self)
         price_distribution_frame.Show()
         # Close the MainMenu frame
         self.Close()
