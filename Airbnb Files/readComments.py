@@ -1,6 +1,6 @@
 import pandas as pd
 
-# Load the CSV data into a pandas DataFrame
+
 df = pd.read_csv('reviews_dec18.csv')
 
 # Filter rows where the review text contains the keyword "Ditto"

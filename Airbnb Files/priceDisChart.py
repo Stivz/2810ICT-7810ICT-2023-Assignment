@@ -7,10 +7,10 @@ warnings.filterwarnings("ignore", category=DtypeWarning)
 # Load the CSV data into a pandas DataFrame
 df = pd.read_csv('listings_dec18.csv')
 
-# Get user input for the first neighborhood
+
 neighborhood1_input = input("Enter the first neighborhood name (e.g., 'Sydney', 'Waverley'): ")
 
-# Get user input for the second neighborhood
+
 neighborhood2_input = input("Enter the second neighborhood name (e.g., 'Sydney', 'Waverley'): ")
 
 # Filter rows based on the user input for the first neighborhood
