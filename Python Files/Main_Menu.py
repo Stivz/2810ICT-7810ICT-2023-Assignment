@@ -1,6 +1,7 @@
 
 from Top_Rated import TopRatedFrame  # Import the TopRatedFrame class from Top_Rated.py
 from price_distribution import PriceDistribution  # Import the PriceDistributionFrame class from price_distribution.py
+from Listings import listings
 import wx
 
 class MainMenu(wx.Frame):
@@ -10,13 +11,9 @@ class MainMenu(wx.Frame):
                           style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
-
         bSizer1 = wx.BoxSizer(wx.VERTICAL)
-
         bSizer12 = wx.BoxSizer(wx.VERTICAL)
-
         bSizer18 = wx.BoxSizer(wx.HORIZONTAL)
-
         gSizer51 = wx.GridSizer(0, 12, 0, 0)
 
         self.m_searchCtrl2 = wx.SearchCtrl(self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0)
@@ -36,9 +33,7 @@ class MainMenu(wx.Frame):
         gSizer51.Add((0, 0), 1, wx.EXPAND, 5)
 
         bSizer18.Add(gSizer51, 1, 0, 5)
-
         bSizer12.Add(bSizer18, 1, wx.EXPAND, 5)
-
         bSizer15 = wx.BoxSizer(wx.VERTICAL)
 
         self.m_staticText7 = wx.StaticText(self, wx.ID_ANY, u"Sydney Stayz", wx.DefaultPosition, wx.DefaultSize, 0)
@@ -82,6 +77,7 @@ class MainMenu(wx.Frame):
         bSizer14.Add(self.m_panel1, 1, wx.EXPAND | wx.ALL, 5)
         bSizer1.Add(bSizer14, 1, wx.EXPAND, 5)
         bSizer17 = wx.BoxSizer(wx.VERTICAL)
+
         self.m_simplebook3 = wx.Simplebook(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0)
         bSizer17.Add(self.m_simplebook3, 1, wx.EXPAND | wx.ALL, 5)
         bSizer1.Add(bSizer17, 1, wx.EXPAND, 5)
@@ -90,8 +86,10 @@ class MainMenu(wx.Frame):
         self.Centre(wx.BOTH)
 
         self.top_rated_clicked = False  # Initialize the flag to False
+        self.listings_clicked = False  # Initialize the flag to False
         self.price_distribution_button_clicked = False  # Initialize the flag to False
         # Bind the "Top Rated" button to the event handler
+        self.m_button14.Bind(wx.EVT_BUTTON, self.on_listings_button_click)
         self.m_button15.Bind(wx.EVT_BUTTON, self.on_top_rated_button_click)
         self.m_button16.Bind(wx.EVT_BUTTON, self.on_price_distribution_button_click)
 
@@ -109,6 +107,13 @@ class MainMenu(wx.Frame):
         # Create and show the PriceDistributionFrame
         price_distribution_frame = PriceDistribution(None, self)
         price_distribution_frame.Show()
+        # Close the MainMenu frame
+        self.Close()
+    def on_listings_button_click(self, event):
+        self.listings_clicked = True
+        # Create and show the PriceDistributionFrame
+        listings_frame = listings(None, self)
+        listings_frame.Show()
         # Close the MainMenu frame
         self.Close()
 
