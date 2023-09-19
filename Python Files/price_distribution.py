@@ -68,6 +68,18 @@ class PriceDistribution(wx.Frame):
         self.generate_graph_button.Bind(wx.EVT_BUTTON, self.on_generate_graph_button_click)
         bSizer12.Add(self.generate_graph_button, 0, wx.ALIGN_CENTER | wx.ALL, 5)
 
+        # Create wx.Choice widgets for selecting suburbs
+        suburb_choices = data['neighbourhood_cleansed'].unique()
+        suburb_choices = ["Select a suburb"] + list(suburb_choices)
+        self.suburb_choice1 = wx.Choice(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choices=suburb_choices)
+        self.suburb_choice2 = wx.Choice(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choices=suburb_choices)
+        # Set "Select a suburb" as the initial selection
+        self.suburb_choice1.SetSelection(0)
+        self.suburb_choice2.SetSelection(0)
+
+        bSizer12.Add(self.suburb_choice1, 0, wx.ALIGN_CENTER | wx.ALL, 5)
+        bSizer12.Add(self.suburb_choice2, 0, wx.ALIGN_CENTER | wx.ALL, 5)
+
         # Add the BoxSizer for the top 1/3 to the main sizer
         bSizer_top.Add(bSizer12, 1, wx.EXPAND, 5)
 
@@ -100,6 +112,12 @@ class PriceDistribution(wx.Frame):
         self.canvas = FigureCanvas(self.m_panel1, -1, self.figure)
 
     def compare_neighborhoods(self, neighborhood1_input, neighborhood2_input, min_price_range, max_price_range):
+        # Clear the old graph
+        self.figure.clf()
+
+        # Create a new subplot
+        ax = self.figure.add_subplot(111)
+
         # Filter rows based on the user input for the first neighborhood
         neighborhood1_data = self.data[self.data['neighbourhood_cleansed'] == neighborhood1_input]
 
@@ -110,48 +128,43 @@ class PriceDistribution(wx.Frame):
         if neighborhood1_data.empty or neighborhood2_data.empty:
             wx.MessageBox("No listings found for one or both of the specified neighborhoods.", "Error",
                           wx.OK | wx.ICON_ERROR)
-        else:
-            # Extract the 'price' columns for the selected neighborhoods
-            price1_data = neighborhood1_data['price'].str.replace('[$,]', '', regex=True).astype(float)
-            price2_data = neighborhood2_data['price'].str.replace('[$,]', '', regex=True).astype(float)
+            return
 
-            # Create histograms of the 'price' data for both neighborhoods
-            ax = self.figure.add_subplot(111)
-            bin_step = 50  # Set the desired increment step size
-            bins = [x for x in
-                    range(int(min_price_range), int(max_price_range) + 1,
-                          bin_step)]  # Adjust the bin width as needed
+        # Extract the 'price' columns for the selected neighborhoods
+        price1_data = neighborhood1_data['price'].str.replace('[$,]', '', regex=True).astype(float)
+        price2_data = neighborhood2_data['price'].str.replace('[$,]', '', regex=True).astype(float)
 
-            ax.hist(price1_data, bins=bins, alpha=0.8, label=neighborhood1_input, edgecolor='k', color='blue',
-                    width=bin_step)
-            ax.hist(price2_data, bins=bins, alpha=0.5, label=neighborhood2_input, edgecolor='k', color='orange',
-                    width=bin_step)
+        # Create histograms of the 'price' data for both neighborhoods
+        bin_step = 50  # Set the desired increment step size
+        bins = [x for x in range(int(min_price_range), int(max_price_range) + 1, bin_step)]  # Adjust the bin width as needed
 
-            ax.set_xlabel('Price')
-            ax.set_ylabel('Frequency')
-            ax.set_title(f'Price Distribution Comparison between {neighborhood1_input} and {neighborhood2_input}')
-            ax.legend()
+        ax.hist(price1_data, bins=bins, alpha=0.8, label=neighborhood1_input, edgecolor='k', color='blue', width=bin_step)
+        ax.hist(price2_data, bins=bins, alpha=0.5, label=neighborhood2_input, edgecolor='k', color='orange', width=bin_step)
 
-            # Draw the new plot on the canvas
-            self.canvas.draw()
+        ax.set_xlabel('Price')
+        ax.set_ylabel('Frequency')
+        ax.set_title(f'Price Distribution Comparison between {neighborhood1_input} and {neighborhood2_input}')
+        ax.legend()
+
+        # Draw the new plot on the canvas
+        self.canvas.draw()
 
     def on_generate_graph_button_click(self, event):
-        # Get user input for the first neighborhood
-        neighborhood1_input = wx.GetTextFromUser("Enter the first neighborhood name (e.g., 'Sydney', 'Waverley'):",
-                                                 "Neighborhood 1")
-        # Get user input for the second neighborhood
-        neighborhood2_input = wx.GetTextFromUser("Enter the second neighborhood name (e.g., 'Sydney', 'Waverley'):",
-                                                 "Neighborhood 2")
+        # Get user input for the first and second neighborhoods
+        neighborhood1_input = self.suburb_choice1.GetStringSelection()
+        neighborhood2_input = self.suburb_choice2.GetStringSelection()
 
         if not neighborhood1_input or not neighborhood2_input:
-            wx.MessageBox("Please enter valid neighborhood names.", "Error", wx.OK | wx.ICON_ERROR)
+            wx.MessageBox("Please select two suburbs for comparison.", "Error", wx.OK | wx.ICON_ERROR)
+            return
+
+        if neighborhood1_input == neighborhood2_input:
+            wx.MessageBox("Please select two different suburbs for comparison.", "Error", wx.OK | wx.ICON_ERROR)
             return
 
         # Prompt the user to enter the minimum and maximum price range
-        min_price_range = wx.GetNumberFromUser("Enter the minimum price (e.g., 0):", "Minimum Price", "Minimum Price",
-                                               0, 0, 10000)
-        max_price_range = wx.GetNumberFromUser("Enter the maximum price (e.g., 1000):", "Maximum Price",
-                                               "Maximum Price", 1000, 0, 10000)
+        min_price_range = wx.GetNumberFromUser("Enter the minimum price (e.g., 0):", "Minimum Price", "Minimum Price", 0, 0, 10000)
+        max_price_range = wx.GetNumberFromUser("Enter the maximum price (e.g., 1000):", "Maximum Price", "Maximum Price", 1000, 0, 10000)
 
         if min_price_range > max_price_range:
             wx.MessageBox("Minimum price cannot be greater than maximum price.", "Error", wx.OK | wx.ICON_ERROR)
