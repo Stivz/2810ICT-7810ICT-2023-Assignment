@@ -90,13 +90,30 @@ class listings(wx.Frame):
         self.m_button5.Bind(wx.EVT_BUTTON, self.on_back_button_click)
 
         self.data = data
+
+        # Create a wx.Panel to contain the tkinter table
+        self.m_panel1 = wx.Panel(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
+        bSizer14.Add(self.m_panel1, 1, wx.EXPAND | wx.ALL, 5)
+
+        # Start the tkinter table creation within the panel
+        self.create_tkinter_table()
+
+
+        # Create a function to update the table based on user input
+    def create_tkinter_table(self):
         data_file_path = os.path.join("../csv files", "listings_dec18.csv")
         self.df = pd.read_csv(data_file_path)
-        # Create a function to update the table based on user input
+
+
         def update_table():
+
 
             selected_neighborhood = self.neighborhood_var.get()
             filtered_data = self.df[self.df['neighbourhood_cleansed'] == selected_neighborhood]
+
+
+
+
 
             # Clear the existing table
             for item in self.tree.get_children():
