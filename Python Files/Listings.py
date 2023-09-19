@@ -87,11 +87,11 @@ class listings(wx.Frame):
         self.SetSizer(bSizer1)
         self.Layout()
         self.Centre(wx.BOTH)
-
         self.m_button5.Bind(wx.EVT_BUTTON, self.on_back_button_click)
 
         self.data = data
-
+        data_file_path = os.path.join("csv files", "listings_dec18.csv")
+        self.df = pd.read_csv(data_file_path)
         # Create a function to update the table based on user input
         def update_table():
             selected_neighborhood = self.neighborhood_var.get()
