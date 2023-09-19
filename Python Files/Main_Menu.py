@@ -1,4 +1,3 @@
-
 from Top_Rated import TopRatedFrame  # Import the TopRatedFrame class from Top_Rated.py
 from price_distribution import PriceDistribution  # Import the PriceDistributionFrame class from price_distribution.py
 from Listings import listings
@@ -130,7 +129,6 @@ class MainMenu(wx.Frame):
 
 if __name__ == "__main__":
     app = wx.App(False)
-
     # Construct the full path to the CSV file using an absolute path
     script_directory = os.path.dirname(os.path.abspath(__file__))
     data_file_path = os.path.join(script_directory, "..", "csv files", "listings_dec18.csv")
