@@ -69,7 +69,7 @@ class MainMenu(wx.Frame):
         bSizer19.Add(gSizer5, 1, 0, 5)
         gSizer6 = wx.GridSizer(0, 1, 0, 0)
 
-        self.m_button17 = wx.Button(self, wx.ID_ANY, u"Calender", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.m_button17 = wx.Button(self, wx.ID_ANY, u"Calendar", wx.DefaultPosition, wx.DefaultSize, 0)
         gSizer6.Add(self.m_button17, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
         bSizer19.Add(gSizer6, 1, 0, 5)
         bSizer12.Add(bSizer19, 1, wx.ALIGN_CENTER | wx.ALL, 5)
