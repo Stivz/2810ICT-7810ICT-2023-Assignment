@@ -1,7 +1,7 @@
 import wx
 
 class TopRatedFrame(wx.Frame):
-    def __init__(self, parent, main_frame):
+    def __init__(self, parent, data):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString, pos=wx.DefaultPosition,
                           size=wx.Size(1980, 1080), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 
@@ -112,12 +112,13 @@ class TopRatedFrame(wx.Frame):
         self.Centre(wx.BOTH)
         self.m_button5.Bind(wx.EVT_BUTTON, self.on_back_button_click)
 
+        self.data = data  # Store the DataFrame for later use
     def on_back_button_click(self, event):
         from Main_Menu import MainMenu  # Import the MainMenu class from Main_Menu.py
         self.Close()
         # Create and show a new instance of the MainMenu class
         app = wx.App(False)
-        main_frame = MainMenu(None)
+        main_frame = MainMenu(None, self.data)
         main_frame.Show()
         app.MainLoop()
 

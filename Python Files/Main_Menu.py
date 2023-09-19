@@ -100,7 +100,7 @@ class MainMenu(wx.Frame):
         # Set the flag to True when the button is clicked
         self.top_rated_clicked = True
         # Create and show the "Top Rated" frame
-        top_rated_frame = TopRatedFrame(None, self)
+        top_rated_frame = TopRatedFrame(None, self.data)
         top_rated_frame.Show()
         # Close the MainFrame
         self.Close()
@@ -108,14 +108,14 @@ class MainMenu(wx.Frame):
     def on_price_distribution_button_click(self, event):
         self.price_distribution_button_clicked = True
         # Create and show the PriceDistributionFrame
-        price_distribution_frame = PriceDistribution(None, data)
+        price_distribution_frame = PriceDistribution(None, self.data)
         price_distribution_frame.Show()
         # Close the MainMenu frame
         self.Close()
 
     def on_listings_button_click(self, event):
         self.listings_clicked = True
-        listings_frame = listings(None, data)
+        listings_frame = listings(None, self.data)
         listings_frame.Show()
         self.Close()
 

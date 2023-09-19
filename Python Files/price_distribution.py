@@ -165,7 +165,7 @@ class PriceDistribution(wx.Frame):
         self.Close()
         # Create and show a new instance of the MainMenu class
         app = wx.App(False)
-        main_frame = MainMenu(None)
+        main_frame = MainMenu(None, self.data)
         main_frame.Show()
         app.MainLoop()
 
