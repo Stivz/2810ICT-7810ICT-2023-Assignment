@@ -41,11 +41,16 @@ class PriceDistribution(wx.Frame):
         bSizer18.Add(gSizer51, 1, 0, 5)
 
         # Add the BoxSizer for the top 1/3 to the main sizer
-        bSizer_top.Add(bSizer18, 1, wx.EXPAND, 5)
+        bSizer_top.Add(bSizer18, 0, wx.EXPAND, 5)
 
         # Create a BoxSizer for the top 1/3
         bSizer12 = wx.BoxSizer(wx.VERTICAL)
+
+        # Create a BoxSizer for the top 1/3
         bSizer15 = wx.BoxSizer(wx.VERTICAL)
+
+        # Add some empty space before the static text
+        bSizer15.Add((0, 20), 0, wx.EXPAND, 5)
 
         self.m_staticText7 = wx.StaticText(self, wx.ID_ANY, u"Sydney Stayz", wx.DefaultPosition, wx.DefaultSize, 0)
         self.m_staticText7.Wrap(-1)
@@ -53,43 +58,77 @@ class PriceDistribution(wx.Frame):
             wx.Font(30, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, wx.EmptyString))
         bSizer15.Add(self.m_staticText7, 0, wx.ALIGN_CENTER | wx.ALL, 5)
 
-        self.m_staticText2 = wx.StaticText(self, wx.ID_ANY, u"Price Distribution Chart", wx.DefaultPosition, wx.DefaultSize,0)
+        self.m_staticText2 = wx.StaticText(self, wx.ID_ANY, u"Price Distribution Chart", wx.DefaultPosition,
+                                           wx.DefaultSize, 0)
         self.m_staticText2.Wrap(-1)
         self.m_staticText2.SetFont(
             wx.Font(20, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, wx.EmptyString))
         bSizer15.Add(self.m_staticText2, 0, wx.ALIGN_CENTER, 5)
+
+        # Add some empty space after the static text
+        bSizer15.Add((0, 20), 0, wx.EXPAND, 5)
+        bSizer15.Add((0, 20), 0, wx.EXPAND, 5)
+
+        # Add the BoxSizer for static text to the main sizer (vertical)
         bSizer12.Add(bSizer15, 0, wx.EXPAND, 5)
 
-        # Create a button to generate the graph
-        self.generate_graph_button = wx.Button(self, wx.ID_ANY, u"Generate Graph", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.generate_graph_button.Bind(wx.EVT_BUTTON, self.on_generate_graph_button_click)
-        bSizer12.Add(self.generate_graph_button, 0, wx.ALIGN_CENTER | wx.ALL, 5)
+        # Create a BoxSizer for the dropdowns, text fields, and the "Generate Graph" button (horizontal)
+        bSizer_horizontal = wx.BoxSizer(wx.HORIZONTAL)
 
         # Create wx.Choice widgets for selecting suburbs
         suburb_choices = data['neighbourhood_cleansed'].unique()
-        suburb_choices = ["Select a suburb"] + list(suburb_choices)
-        self.suburb_choice1 = wx.Choice(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choices=suburb_choices)
-        self.suburb_choice2 = wx.Choice(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choices=suburb_choices)
+        suburb_choices1 = ["Select suburb 1"] + list(suburb_choices)
+        suburb_choices2 = ["Select suburb 2"] + list(suburb_choices)
+        self.suburb_choice1 = wx.Choice(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choices=suburb_choices1)
+        self.suburb_choice2 = wx.Choice(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choices=suburb_choices2)
         # Set "Select a suburb" as the initial selection
         self.suburb_choice1.SetSelection(0)
         self.suburb_choice2.SetSelection(0)
 
-        bSizer12.Add(self.suburb_choice1, 0, wx.ALIGN_CENTER | wx.ALL, 5)
-        bSizer12.Add(self.suburb_choice2, 0, wx.ALIGN_CENTER | wx.ALL, 5)
+        # Create text fields for entering minimum and maximum price
+        self.min_price_text = wx.TextCtrl(self, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize)
+        self.max_price_text = wx.TextCtrl(self, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize)
 
-        # Add the BoxSizer for the top 1/3 to the main sizer
-        bSizer_top.Add(bSizer12, 1, wx.EXPAND, 5)
+        # Set default text for text fields and bind focus events
+        self.set_default_text(self.min_price_text, "Enter Min Value")
+        self.set_default_text(self.max_price_text, "Enter Max Value")
+
+        # Create a button to generate the graph
+        self.generate_graph_button = wx.Button(self, wx.ID_ANY, u"Generate Graph", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.generate_graph_button.Bind(wx.EVT_BUTTON, self.on_generate_graph_button_click)
+
+        # Add the dropdowns, text fields, and the button to the horizontal BoxSizer
+        bSizer_horizontal.Add(self.suburb_choice1, 0, wx.ALIGN_CENTER | wx.ALL, 5)
+        bSizer_horizontal.Add(self.suburb_choice2, 0, wx.ALIGN_CENTER | wx.ALL, 5)
+        bSizer_horizontal.Add(self.min_price_text, 0, wx.ALIGN_CENTER | wx.ALL, 5)
+        bSizer_horizontal.Add(self.max_price_text, 0, wx.ALIGN_CENTER | wx.ALL, 5)
+        bSizer_horizontal.Add(self.generate_graph_button, 0, wx.ALIGN_CENTER | wx.ALL, 5)
+
+        # Center the horizontal BoxSizer
+        bSizer_horizontal_centered = wx.BoxSizer(wx.HORIZONTAL)
+        bSizer_horizontal_centered.AddStretchSpacer(1)  # Add space to center-align the contents
+        bSizer_horizontal_centered.Add(bSizer_horizontal, 0, wx.ALIGN_CENTER)
+        bSizer_horizontal_centered.AddStretchSpacer(1)  # Add space to center-align the contents
+
+        # Add the centered horizontal BoxSizer to the main sizer
+        bSizer12.Add(bSizer_horizontal_centered, 0, wx.EXPAND, 5)
+
         bSizer14 = wx.BoxSizer(wx.HORIZONTAL)
         bSizer14.Add((0, 0), 1, wx.EXPAND, 5)
-        bSizer8 = wx.BoxSizer(wx.VERTICAL)
+
+        # Create a BoxSizer for the panel to display the graph
+        bSizer_panel = wx.BoxSizer(wx.VERTICAL)
 
         self.m_panel1 = wx.Panel(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
-        bSizer8.Add(self.m_panel1, 1, wx.EXPAND | wx.ALL, 5)
-        bSizer14.Add(bSizer8, 1, wx.EXPAND, 5)
-        bSizer14.Add((0, 0), 1, wx.EXPAND, 5)
-        bSizer1.Add(bSizer_top, 1, wx.EXPAND, 5)  # Add the BoxSizer for the top 1/3 to the main sizer
-        bSizer1.Add(bSizer14, 2, wx.EXPAND, 5)  # Add the BoxSizer for the bottom 2/3 to the main sizer
+        bSizer_panel.Add(self.m_panel1, 1, wx.EXPAND | wx.ALL, 6)
 
+        bSizer14.Add(bSizer_panel, 1, wx.EXPAND, 5)
+        bSizer14.Add((0, 0), 1, wx.EXPAND, 5)
+
+        bSizer_top.Add(bSizer12, 1, wx.EXPAND, 5)
+        bSizer_top.Add(bSizer14, 2, wx.EXPAND, 5)
+
+        bSizer1.Add(bSizer_top, 1, wx.EXPAND, 5)
         self.SetSizer(bSizer1)
         self.Layout()
         self.Centre(wx.BOTH)
@@ -99,7 +138,7 @@ class PriceDistribution(wx.Frame):
         self.data = data  # Store the DataFrame for later use
 
         # Create a Figure and a canvas for displaying the plot
-        self.figure = Figure(figsize=(7, 5))
+        self.figure = Figure(figsize=(7, 6))
         self.canvas = FigureCanvas(self.m_panel1, -1, self.figure)
 
     def compare_neighborhoods(self, neighborhood1_input, neighborhood2_input, min_price_range, max_price_range):
@@ -131,8 +170,8 @@ class PriceDistribution(wx.Frame):
         ax.hist(price2_data, bins=bins, alpha=0.5, label=neighborhood2_input, edgecolor='k', color='orange', width=bin_step)
 
         ax.set_xlabel('Price')
-        ax.set_ylabel('Frequency')
-        ax.set_title(f'Price Distribution Comparison between {neighborhood1_input} and {neighborhood2_input}')
+        ax.set_ylabel("Number of Airbnb's")
+        ax.set_title(f'Price Distribution between {neighborhood1_input} and {neighborhood2_input}')
         ax.legend()
 
         # Draw the new plot on the canvas
@@ -142,6 +181,16 @@ class PriceDistribution(wx.Frame):
         # Get user input for the first and second neighborhoods
         neighborhood1_input = self.suburb_choice1.GetStringSelection()
         neighborhood2_input = self.suburb_choice2.GetStringSelection()
+        min_price_input = self.min_price_text.GetValue()
+        max_price_input = self.max_price_text.GetValue()
+
+        # Validate the minimum and maximum price inputs
+        try:
+            min_price_range = float(min_price_input)
+            max_price_range = float(max_price_input)
+        except ValueError:
+            wx.MessageBox("Please enter valid numerical values for minimum and maximum prices.", "Error", wx.OK | wx.ICON_ERROR)
+            return
 
         if not neighborhood1_input or not neighborhood2_input:
             wx.MessageBox("Please select two suburbs for comparison.", "Error", wx.OK | wx.ICON_ERROR)
@@ -149,10 +198,6 @@ class PriceDistribution(wx.Frame):
         if neighborhood1_input == neighborhood2_input:
             wx.MessageBox("Please select two different suburbs for comparison.", "Error", wx.OK | wx.ICON_ERROR)
             return
-
-        # Prompt the user to enter the minimum and maximum price range
-        min_price_range = wx.GetNumberFromUser("Enter the minimum price (e.g., 0):", "Minimum Price", "Minimum Price", 0, 0, 10000)
-        max_price_range = wx.GetNumberFromUser("Enter the maximum price (e.g., 1000):", "Maximum Price", "Maximum Price", 1000, 0, 10000)
 
         if min_price_range > max_price_range:
             wx.MessageBox("Minimum price cannot be greater than maximum price.", "Error", wx.OK | wx.ICON_ERROR)
@@ -168,6 +213,22 @@ class PriceDistribution(wx.Frame):
         main_frame = MainMenu(None, self.data)
         main_frame.Show()
         app.MainLoop()
+
+    def set_default_text(self, text_ctrl, default_text):
+        # Set the default text and bind the focus event to clear it when focused
+        text_ctrl.SetValue(default_text)
+        text_ctrl.Bind(wx.EVT_SET_FOCUS, lambda event: self.on_text_ctrl_focus(event, text_ctrl, default_text))
+        text_ctrl.Bind(wx.EVT_KILL_FOCUS, lambda event: self.on_text_ctrl_kill_focus(event, text_ctrl, default_text))
+
+    def on_text_ctrl_focus(self, event, text_ctrl, default_text):
+        # Clear the default text when the text control gains focus
+        if text_ctrl.GetValue() == default_text:
+            text_ctrl.SetValue("")
+
+    def on_text_ctrl_kill_focus(self, event, text_ctrl, default_text):
+        # Restore the default text if the text control is empty when it loses focus
+        if text_ctrl.GetValue() == "":
+            text_ctrl.SetValue(default_text)
 
 if __name__ == "__main__":
     data_file_path = os.path.join("csv files", "listings_dec18.csv")
