@@ -90,7 +90,7 @@ class listings(wx.Frame):
         self.m_button5.Bind(wx.EVT_BUTTON, self.on_back_button_click)
 
         self.data = data
-        data_file_path = os.path.join("csv files", "listings_dec18.csv")
+        data_file_path = os.path.join("..\csv files", "listings_dec18.csv")
         self.df = pd.read_csv(data_file_path)
         # Create a function to update the table based on user input
         def update_table():
