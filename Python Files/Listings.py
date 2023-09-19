@@ -1,14 +1,13 @@
 import wx
 import wx.xrc
-
-
-###########################################################################
-## Class listings
-###########################################################################
+import pandas as pd
+import tkinter as tk
+from tkinter import ttk
+import os
 
 class listings(wx.Frame):
 
-    def __init__(self, parent, main_frame):
+    def __init__(self, parent, data):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString, pos=wx.DefaultPosition,
                           size=wx.Size(1980, 1080), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 
@@ -91,6 +90,67 @@ class listings(wx.Frame):
 
         self.m_button5.Bind(wx.EVT_BUTTON, self.on_back_button_click)
 
+        self.data = data
+
+        # Create a function to update the table based on user input
+        def update_table():
+            selected_neighborhood = self.neighborhood_var.get()
+            filtered_data = self.df[self.df['neighbourhood_cleansed'] == selected_neighborhood]
+
+            # Clear the existing table
+            for item in self.tree.get_children():
+                self.tree.delete(item)
+
+            # Insert data into the table
+            for index, row in filtered_data.iterrows():
+                self.tree.insert("", "end", values=(
+                    row["name"], row["neighbourhood_cleansed"], row["property_type"], row["price"], row["listing_url"]))
+
+        # Create a tkinter window
+        root = tk.Tk()
+        root.title("Listings Table")
+
+        # Create a frame for user input
+        input_frame = ttk.Frame(root)
+        input_frame.pack(pady=10)
+
+        # Create a label and a dropdown for selecting a neighborhood
+        neighborhood_label = ttk.Label(input_frame, text="Select a Neighborhood:")
+        neighborhood_label.grid(row=0, column=0, padx=10, pady=5)
+
+        # Remove quotation marks from neighborhood names
+        neighborhoods = [neighborhood.strip("'") for neighborhood in self.df['neighbourhood_cleansed'].unique()]
+
+        self.neighborhood_var = tk.StringVar()
+        neighborhood_dropdown = ttk.Combobox(input_frame, textvariable=self.neighborhood_var, values=neighborhoods)
+        neighborhood_dropdown.grid(row=0, column=1, padx=10, pady=5)
+
+        # Create a button to update the table
+        update_button = ttk.Button(input_frame, text="Update Table", command=update_table)
+        update_button.grid(row=0, column=2, padx=10, pady=5)
+
+        # Create a scrollbar
+        scrollbar = ttk.Scrollbar(root)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # Create a Treeview widget (table)
+        self.tree = ttk.Treeview(root, columns=("Name", "Neighborhood", "Property Type", "Price", "Listing URL"),
+                                yscrollcommand=scrollbar.set)
+        scrollbar.config(command=self.tree.yview)
+
+        # Set column headings
+        self.tree.heading("#1", text="Name")
+        self.tree.heading("#2", text="Neighborhood")
+        self.tree.heading("#3", text="Property Type")
+        self.tree.heading("#4", text="Price")
+        self.tree.heading("#5", text="Listing URL")
+
+        # Pack the Treeview widget
+        self.tree.pack()
+
+        # Start the tkinter main loop
+        root.mainloop()
+
     def on_back_button_click(self, event):
         from Main_Menu import MainMenu  # Import the MainMenu class from Main_Menu.py
         self.Close()
@@ -99,3 +159,11 @@ class listings(wx.Frame):
         main_frame = MainMenu(None)
         main_frame.Show()
         app.MainLoop()
+
+if __name__ == "__main__":
+    data_file_path = os.path.join("csv files", "listings_dec18.csv")
+    data = pd.read_csv(data_file_path)  # Load your DataFrame from a CSV file
+    app = wx.App(False)
+    main_frame = listings(None, data)  # Pass the DataFrame as an argument
+    main_frame.Show()
+    app.MainLoop()
