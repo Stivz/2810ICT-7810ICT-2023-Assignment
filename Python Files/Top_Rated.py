@@ -1,6 +1,5 @@
 import wx
 
-
 class TopRatedFrame(wx.Frame):
     def __init__(self, parent, main_frame):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString, pos=wx.DefaultPosition,

@@ -3,12 +3,16 @@ from Top_Rated import TopRatedFrame  # Import the TopRatedFrame class from Top_R
 from price_distribution import PriceDistribution  # Import the PriceDistributionFrame class from price_distribution.py
 from Listings import listings
 import wx
+import os
+import pandas as pd
 
 class MainMenu(wx.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, data):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString,
                           pos=wx.DefaultPosition, size=wx.Size(1980, 1080),
                           style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
+
+        self.data = data  # Store the data DataFrame
 
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
         bSizer1 = wx.BoxSizer(wx.VERTICAL)
@@ -105,7 +109,7 @@ class MainMenu(wx.Frame):
     def on_price_distribution_button_click(self, event):
         self.price_distribution_button_clicked = True
         # Create and show the PriceDistributionFrame
-        price_distribution_frame = PriceDistribution(None, self)
+        price_distribution_frame = PriceDistribution(None, data)
         price_distribution_frame.Show()
         # Close the MainMenu frame
         self.Close()
@@ -127,6 +131,13 @@ class MainMenu(wx.Frame):
 
 if __name__ == "__main__":
     app = wx.App(False)
-    frame = MainMenu(None)
+
+    # Construct the full path to the CSV file using an absolute path
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+    data_file_path = os.path.join(script_directory, "..", "csv files", "listings_dec18.csv")
+
+    data = pd.read_csv(data_file_path)  # Load your DataFrame from a CSV file
+    frame = MainMenu(None, data)  # Pass the DataFrame as an argument
     frame.Show()
     app.MainLoop()
+
