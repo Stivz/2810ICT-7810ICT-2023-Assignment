@@ -154,7 +154,7 @@ class listings(wx.Frame):
     def on_back_button_click(self, event):
         from Main_Menu import MainMenu  # Import the MainMenu class from Main_Menu.py
         self.Close()
-        # Create and show a new instance of the MainMenu class
+        # Create and show a new instance of the MainMenu classs
         app = wx.App(False)
         main_frame = MainMenu(None)
         main_frame.Show()
