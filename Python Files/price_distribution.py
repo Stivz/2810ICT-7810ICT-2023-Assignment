@@ -53,9 +53,7 @@ class PriceDistribution(wx.Frame):
             wx.Font(30, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, wx.EmptyString))
         bSizer15.Add(self.m_staticText7, 0, wx.ALIGN_CENTER | wx.ALL, 5)
 
-        self.m_staticText2 = wx.StaticText(self, wx.ID_ANY, u"Price Distribution Chart", wx.DefaultPosition,
-                                           wx.DefaultSize,
-                                           0)
+        self.m_staticText2 = wx.StaticText(self, wx.ID_ANY, u"Price Distribution Chart", wx.DefaultPosition, wx.DefaultSize,0)
         self.m_staticText2.Wrap(-1)
         self.m_staticText2.SetFont(
             wx.Font(20, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, wx.EmptyString))
@@ -63,8 +61,7 @@ class PriceDistribution(wx.Frame):
         bSizer12.Add(bSizer15, 0, wx.EXPAND, 5)
 
         # Create a button to generate the graph
-        self.generate_graph_button = wx.Button(self, wx.ID_ANY, u"Generate Graph", wx.DefaultPosition, wx.DefaultSize,
-                                               0)
+        self.generate_graph_button = wx.Button(self, wx.ID_ANY, u"Generate Graph", wx.DefaultPosition, wx.DefaultSize, 0)
         self.generate_graph_button.Bind(wx.EVT_BUTTON, self.on_generate_graph_button_click)
         bSizer12.Add(self.generate_graph_button, 0, wx.ALIGN_CENTER | wx.ALL, 5)
 
@@ -82,20 +79,14 @@ class PriceDistribution(wx.Frame):
 
         # Add the BoxSizer for the top 1/3 to the main sizer
         bSizer_top.Add(bSizer12, 1, wx.EXPAND, 5)
-
         bSizer14 = wx.BoxSizer(wx.HORIZONTAL)
-
         bSizer14.Add((0, 0), 1, wx.EXPAND, 5)
-
         bSizer8 = wx.BoxSizer(wx.VERTICAL)
 
         self.m_panel1 = wx.Panel(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
         bSizer8.Add(self.m_panel1, 1, wx.EXPAND | wx.ALL, 5)
-
         bSizer14.Add(bSizer8, 1, wx.EXPAND, 5)
-
         bSizer14.Add((0, 0), 1, wx.EXPAND, 5)
-
         bSizer1.Add(bSizer_top, 1, wx.EXPAND, 5)  # Add the BoxSizer for the top 1/3 to the main sizer
         bSizer1.Add(bSizer14, 2, wx.EXPAND, 5)  # Add the BoxSizer for the bottom 2/3 to the main sizer
 
@@ -114,13 +105,11 @@ class PriceDistribution(wx.Frame):
     def compare_neighborhoods(self, neighborhood1_input, neighborhood2_input, min_price_range, max_price_range):
         # Clear the old graph
         self.figure.clf()
-
         # Create a new subplot
         ax = self.figure.add_subplot(111)
 
         # Filter rows based on the user input for the first neighborhood
         neighborhood1_data = self.data[self.data['neighbourhood_cleansed'] == neighborhood1_input]
-
         # Filter rows based on the user input for the second neighborhood
         neighborhood2_data = self.data[self.data['neighbourhood_cleansed'] == neighborhood2_input]
 
@@ -157,7 +146,6 @@ class PriceDistribution(wx.Frame):
         if not neighborhood1_input or not neighborhood2_input:
             wx.MessageBox("Please select two suburbs for comparison.", "Error", wx.OK | wx.ICON_ERROR)
             return
-
         if neighborhood1_input == neighborhood2_input:
             wx.MessageBox("Please select two different suburbs for comparison.", "Error", wx.OK | wx.ICON_ERROR)
             return
