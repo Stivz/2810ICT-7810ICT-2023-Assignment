@@ -113,12 +113,11 @@ class MainMenu(wx.Frame):
         price_distribution_frame.Show()
         # Close the MainMenu frame
         self.Close()
+
     def on_listings_button_click(self, event):
         self.listings_clicked = True
-        # Create and show the PriceDistributionFrame
-        listings_frame = listings(None, self)
+        listings_frame = listings(None, data)
         listings_frame.Show()
-        # Close the MainMenu frame
         self.Close()
 
     def close_top_rated_frame(self):
@@ -135,7 +134,6 @@ if __name__ == "__main__":
     # Construct the full path to the CSV file using an absolute path
     script_directory = os.path.dirname(os.path.abspath(__file__))
     data_file_path = os.path.join(script_directory, "..", "csv files", "listings_dec18.csv")
-
     data = pd.read_csv(data_file_path)  # Load your DataFrame from a CSV file
     frame = MainMenu(None, data)  # Pass the DataFrame as an argument
     frame.Show()
