@@ -90,10 +90,11 @@ class listings(wx.Frame):
         self.m_button5.Bind(wx.EVT_BUTTON, self.on_back_button_click)
 
         self.data = data
-        data_file_path = os.path.join("csv files", "listings_dec18.csv")
+        data_file_path = os.path.join("../csv files", "listings_dec18.csv")
         self.df = pd.read_csv(data_file_path)
         # Create a function to update the table based on user input
         def update_table():
+
             selected_neighborhood = self.neighborhood_var.get()
             filtered_data = self.df[self.df['neighbourhood_cleansed'] == selected_neighborhood]
 
@@ -154,15 +155,16 @@ class listings(wx.Frame):
     def on_back_button_click(self, event):
         from Main_Menu import MainMenu  # Import the MainMenu class from Main_Menu.py
         self.Close()
-        # Create and show a new instance of the MainMenu classs
+        # Create and show a new instance of the MainMenu class
         app = wx.App(False)
         main_frame = MainMenu(None)
         main_frame.Show()
         app.MainLoop()
 
 if __name__ == "__main__":
-    data_file_path = os.path.join("csv files", "listings_dec18.csv")
+    data_file_path = os.path.join("..", "csv files", "listings_dec18.csv")
     data = pd.read_csv(data_file_path)  # Load your DataFrame from a CSV file
+    print(f"Data file path: {data_file_path}")
     app = wx.App(False)
     main_frame = listings(None, data)  # Pass the DataFrame as an argument
     main_frame.Show()
