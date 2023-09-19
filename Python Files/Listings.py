@@ -1,17 +1,20 @@
 import wx
 import wx.xrc
-
-
+import os
+import pandas as pd
+# Global variable to store the listings frame
+listings_frame = None
 ###########################################################################
 ## Class listings
 ###########################################################################
 
 class listings(wx.Frame):
 
-    def __init__(self, parent, main_frame):
+    def __init__(self, parent, data):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString, pos=wx.DefaultPosition,
                           size=wx.Size(1980, 1080), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 
+        self.data = data  # Store the data DataFrame
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
         bSizer1 = wx.BoxSizer(wx.VERTICAL)
         bSizer12 = wx.BoxSizer(wx.VERTICAL)
@@ -96,6 +99,15 @@ class listings(wx.Frame):
         self.Close()
         # Create and show a new instance of the MainMenu class
         app = wx.App(False)
-        main_frame = MainMenu(None)
+        main_frame = MainMenu(None, self.data)
         main_frame.Show()
         app.MainLoop()
+
+
+if __name__ == "__main__":
+    data_file_path = os.path.join("csv files", "listings_dec18.csv")
+    data = pd.read_csv(data_file_path)  # Load your DataFrame from a CSV file
+    app = wx.App(False)
+    main_frame = listings(None, data)  # Pass the DataFrame as an argument
+    main_frame.Show()
+    app.MainLoop()
