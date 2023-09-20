@@ -3,6 +3,7 @@ import wx.xrc
 import pandas as pd
 import tkinter as tk
 from tkinter import ttk
+import webbrowser
 
 import os
 
@@ -101,21 +102,19 @@ class listings(wx.Frame):
         # Show the table frame
         self.table_frame.Show()
 
-
-
     def create_table(self):
         # Create a tkinter window for the table
-        self.root = tk.Tk()
-        self.root.title("Listings Table")
+        self.table_window = tk.Tk()
+        self.table_window.title("Listings Table")
 
         # Get the screen width and height
-        screen_width = self.root.winfo_screenwidth()
-        screen_height = self.root.winfo_screenheight()
+        screen_width = self.table_window.winfo_screenwidth()
+        screen_height = self.table_window.winfo_screenheight()
 
-        self.root.geometry("1300x300+280+345")  # Adjust the size and coordinates as needed
+        self.table_window.geometry("1300x300+280+345")  # Adjust the size and coordinates as needed
 
         # Create a frame for user input
-        input_frame = ttk.Frame(self.root)
+        input_frame = ttk.Frame(self.table_window)
         input_frame.pack(pady=10)
 
         # Create a label and a dropdown for selecting a neighborhood
@@ -134,11 +133,12 @@ class listings(wx.Frame):
         update_button.grid(row=0, column=2, padx=10, pady=5)
 
         # Create a scrollbar
-        scrollbar = ttk.Scrollbar(self.root)
+        scrollbar = ttk.Scrollbar(self.table_window)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
         # Create a Treeview widget (table)
-        self.tree = ttk.Treeview(self.root, columns=("Name", "Neighborhood", "Property Type", "Price", "Listing URL"),
+        self.tree = ttk.Treeview(self.table_window,
+                                 columns=("Name", "Neighborhood", "Property Type", "Price", "Listing URL"),
                                  yscrollcommand=scrollbar.set, show="headings")
         scrollbar.config(command=self.tree.yview)
 
@@ -152,8 +152,21 @@ class listings(wx.Frame):
         # Pack the Treeview widget
         self.tree.pack()
 
+        # Bind the double-click event to open the URL
+        self.tree.bind("<Double-1>", self.open_url)
+
         # Start the tkinter main loop
-        self.root.mainloop()
+        self.table_window.mainloop()
+
+        # Method to open the URL in the default web browser
+    def open_url(self, event):
+        item = self.tree.selection()
+        if item:
+            url = self.tree.item(item,"values")[4] # click URL in the fifth column (index 4)
+
+            if url:
+                webbrowser.open(url)  # Open the URL in the default web browser
+
     def show_table(self, event=None):
         # Refresh the layout
         self.Layout()
