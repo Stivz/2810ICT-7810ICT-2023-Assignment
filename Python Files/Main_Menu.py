@@ -5,6 +5,8 @@ import wx
 import os
 import pandas as pd
 
+
+
 class MainMenu(wx.Frame):
     def __init__(self, parent, data):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString,
@@ -116,8 +118,10 @@ class MainMenu(wx.Frame):
     def on_listings_button_click(self, event):
         self.listings_clicked = True
         listings_frame = listings(None, self.data)
+        listings_frame.show_table()  # Call the show_table method
         listings_frame.Show()
         self.Close()
+
 
     def close_top_rated_frame(self):
         self.Close()

@@ -3,6 +3,7 @@ import wx.xrc
 import pandas as pd
 import tkinter as tk
 from tkinter import ttk
+
 import os
 
 class listings(wx.Frame):
@@ -92,44 +93,29 @@ class listings(wx.Frame):
         self.data = data
 
         # Create a wx.Panel to contain the tkinter table
-        self.m_panel1 = wx.Panel(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
-        bSizer14.Add(self.m_panel1, 1, wx.EXPAND | wx.ALL, 5)
+        self.table_frame = wx.Panel(self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
+        self.table_frame.Show()  # Initially hide the frame
 
-        # Start the tkinter table creation within the panel
-        self.create_tkinter_table()
-
-
-        # Create a function to update the table based on user input
-    def create_tkinter_table(self):
-        data_file_path = os.path.join("../csv files", "listings_dec18.csv")
-        self.df = pd.read_csv(data_file_path)
-
-
-        def update_table():
-
-
-            selected_neighborhood = self.neighborhood_var.get()
-            filtered_data = self.df[self.df['neighbourhood_cleansed'] == selected_neighborhood]
+        # Create a button for showing the tkinter table
+        self.m_button14.Bind(wx.EVT_BUTTON, self.show_table)
+        # Show the table frame
+        self.table_frame.Show()
 
 
 
+    def create_table(self):
+        # Create a tkinter window for the table
+        self.root = tk.Tk()
+        self.root.title("Listings Table")
 
+        # Get the screen width and height
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
 
-            # Clear the existing table
-            for item in self.tree.get_children():
-                self.tree.delete(item)
-
-            # Insert data into the table
-            for index, row in filtered_data.iterrows():
-                self.tree.insert("", "end", values=(
-                    row["name"], row["neighbourhood_cleansed"], row["property_type"], row["price"], row["listing_url"]))
-
-        # Create a tkinter window
-        root = tk.Tk()
-        root.title("Listings Table")
+        self.root.geometry("1300x300+280+345")  # Adjust the size and coordinates as needed
 
         # Create a frame for user input
-        input_frame = ttk.Frame(root)
+        input_frame = ttk.Frame(self.root)
         input_frame.pack(pady=10)
 
         # Create a label and a dropdown for selecting a neighborhood
@@ -137,23 +123,23 @@ class listings(wx.Frame):
         neighborhood_label.grid(row=0, column=0, padx=10, pady=5)
 
         # Remove quotation marks from neighborhood names
-        neighborhoods = [neighborhood.strip("'") for neighborhood in self.df['neighbourhood_cleansed'].unique()]
+        neighborhoods = [neighborhood.strip("'") for neighborhood in self.data['neighbourhood_cleansed'].unique()]
 
         self.neighborhood_var = tk.StringVar()
         neighborhood_dropdown = ttk.Combobox(input_frame, textvariable=self.neighborhood_var, values=neighborhoods)
         neighborhood_dropdown.grid(row=0, column=1, padx=10, pady=5)
 
         # Create a button to update the table
-        update_button = ttk.Button(input_frame, text="Update Table", command=update_table)
+        update_button = ttk.Button(input_frame, text="Update Table", command=self.update_table)
         update_button.grid(row=0, column=2, padx=10, pady=5)
 
         # Create a scrollbar
-        scrollbar = ttk.Scrollbar(root)
+        scrollbar = ttk.Scrollbar(self.root)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
         # Create a Treeview widget (table)
-        self.tree = ttk.Treeview(root, columns=("Name", "Neighborhood", "Property Type", "Price", "Listing URL"),
-                                yscrollcommand=scrollbar.set)
+        self.tree = ttk.Treeview(self.root, columns=("Name", "Neighborhood", "Property Type", "Price", "Listing URL"),
+                                 yscrollcommand=scrollbar.set, show="headings")
         scrollbar.config(command=self.tree.yview)
 
         # Set column headings
@@ -167,7 +153,30 @@ class listings(wx.Frame):
         self.tree.pack()
 
         # Start the tkinter main loop
-        root.mainloop()
+        self.root.mainloop()
+    def show_table(self, event=None):
+        # Refresh the layout
+        self.Layout()
+
+        # Check if the tkinter table has already been created
+        if not hasattr(self, 'root'):
+            # Start the tkinter table creation within the panel
+            self.create_table()
+
+    def update_table(self):
+        selected_neighborhood = self.neighborhood_var.get()
+        filtered_data = self.data[self.data['neighbourhood_cleansed'] == selected_neighborhood]
+
+        # Clear the existing table
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
+        # Insert data into the table
+        for index, row in filtered_data.iterrows():
+            self.tree.insert("", "end", values=(
+                row["name"], row["neighbourhood_cleansed"], row["property_type"], row["price"], row["listing_url"]))
+
+
 
     def on_back_button_click(self, event):
         from Main_Menu import MainMenu  # Import the MainMenu class from Main_Menu.py
@@ -186,3 +195,5 @@ if __name__ == "__main__":
     main_frame = listings(None, data)  # Pass the DataFrame as an argument
     main_frame.Show()
     app.MainLoop()
+
+
