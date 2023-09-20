@@ -117,10 +117,15 @@ class MainMenu(wx.Frame):
 
     def on_listings_button_click(self, event):
         self.listings_clicked = True
-        listings_frame = listings(None, self.data)
-        listings_frame.show_table()  # Call the show_table method
-        listings_frame.Show()
         self.Close()
+        listings_frame = listings(None, self.data)
+        listings_frame.Show()
+        listings_frame.show_table()
+
+
+
+
+
 
 
     def close_top_rated_frame(self):
