@@ -1,5 +1,10 @@
 import wx
-
+import wx.xrc
+import pandas as pd
+import tkinter as tk
+from tkinter import ttk
+import os
+import webbrowser
 class TopRatedFrame(wx.Frame):
     def __init__(self, parent, data):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString, pos=wx.DefaultPosition,
@@ -113,6 +118,102 @@ class TopRatedFrame(wx.Frame):
         self.m_button5.Bind(wx.EVT_BUTTON, self.on_back_button_click)
 
         self.data = data  # Store the DataFrame for later use
+
+        # Create a wx.Panel to contain the tkinter table
+        self.table_frame = wx.Panel(self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
+        self.table_frame.Show()
+
+        # Create a button for showing the tkinter table
+        self.m_button15.Bind(wx.EVT_BUTTON, self.show_table)
+
+
+    def create_table(self):
+        # Create a tkinter window for the table
+        self.table_window = tk.Tk()
+        self.table_window.title("Top Rated Table")
+
+        # Get the screen width and height
+        screen_width = self.table_window.winfo_screenwidth()
+        screen_height = self.table_window.winfo_screenheight()
+
+        self.table_window.geometry("1300x300+280+345")  # Adjust the size and coordinates as needed
+
+        # Create a frame for user input
+        input_frame = ttk.Frame(self.table_window)
+        input_frame.pack(pady=10)
+
+        # Create a label and a dropdown for selecting a neighborhood
+        neighborhood_label = ttk.Label(input_frame, text="Select a Neighborhood:")
+        neighborhood_label.grid(row=0, column=0, padx=10, pady=5)
+
+        # Remove quotation marks from neighborhood names
+        neighborhoods = [neighborhood.strip("'") for neighborhood in self.data['neighbourhood_cleansed'].unique()]
+
+        self.neighborhood_var = tk.StringVar()
+        neighborhood_dropdown = ttk.Combobox(input_frame, textvariable=self.neighborhood_var, values=neighborhoods)
+        neighborhood_dropdown.grid(row=0, column=1, padx=10, pady=5)
+
+        # Create a button to update the table
+        update_button = ttk.Button(input_frame, text="Update Table", command=self.update_table)
+        update_button.grid(row=0, column=2, padx=10, pady=5)
+
+        # Create a scrollbar
+        scrollbar = ttk.Scrollbar(self.table_window)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # Create a Treeview widget (table)
+        self.tree = ttk.Treeview(self.table_window,
+                                 columns=("Name", "Neighborhood", "Review Scores Rating", "Listing URL"),
+                                 yscrollcommand=scrollbar.set, show="headings")
+        scrollbar.config(command=self.tree.yview)
+
+        # Set column headings
+        self.tree.heading("#1", text="Name")
+        self.tree.heading("#2", text="Neighborhood")
+        self.tree.heading("#3", text="Review Scores Rating")
+        self.tree.heading("#4", text="Listing URL")
+
+        # Pack the Treeview widget
+        self.tree.pack()
+
+        # Bind the double-click event to open the URL
+        self.tree.bind("<Double-1>", self.open_url)
+
+        # Start the tkinter main loop
+        self.table_window.mainloop()
+
+    def open_url(self, event):
+        item = self.tree.selection()
+        if item:
+            url = self.tree.item(item,"values")[3]  # click URL in the fifth column (index 4)
+
+            if url:
+                webbrowser.open(url)  # Open the URL in the default web browser
+    def show_table(self, event=None):
+        # Refresh the layout
+        self.Layout()
+
+        # Check if the tkinter table has already been created
+        if not hasattr(self, 'root'):
+            # Start the tkinter table creation within the panel
+            self.create_table()
+
+    def update_table(self):
+        selected_neighborhood = self.neighborhood_var.get()
+        filtered_data = self.data[self.data['neighbourhood_cleansed'] == selected_neighborhood]
+
+        # Sort the data by "Review Scores Rating" in descending order
+        filtered_data = filtered_data.sort_values(by="review_scores_rating", ascending=False)
+
+        # Clear the existing table
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
+        # Insert data into the table
+        for index, row in filtered_data.iterrows():
+            self.tree.insert("", "end", values=(
+                row["name"], row["neighbourhood_cleansed"], row["review_scores_rating"], row["listing_url"]))
+
     def on_back_button_click(self, event):
         from Main_Menu import MainMenu  # Import the MainMenu class from Main_Menu.py
         self.Close()
@@ -122,3 +223,11 @@ class TopRatedFrame(wx.Frame):
         main_frame.Show()
         app.MainLoop()
 
+if __name__ == "__main__":
+    data_file_path = os.path.join("..", "csv files", "listings_dec18.csv")
+    data = pd.read_csv(data_file_path)  # Load your DataFrame from a CSV file
+    print(f"Data file path: {data_file_path}")
+    app = wx.App(False)
+    main_frame = TopRatedFrame(None, data)  # Pass the DataFrame as an argument
+    main_frame.Show()
+    app.MainLoop()
