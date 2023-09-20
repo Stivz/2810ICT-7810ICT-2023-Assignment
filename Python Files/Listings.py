@@ -149,6 +149,9 @@ class listings(wx.Frame):
         self.tree.heading("#4", text="Price")
         self.tree.heading("#5", text="Listing URL")
 
+        self.tree.column("#1", width=300)
+        self.tree.column("#5", width=230)
+
         # Pack the Treeview widget
         self.tree.pack()
 
