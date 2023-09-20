@@ -101,11 +101,12 @@ class MainMenu(wx.Frame):
     def on_top_rated_button_click(self, event):
         # Set the flag to True when the button is clicked
         self.top_rated_clicked = True
+        self.Close()
         # Create and show the "Top Rated" frame
         top_rated_frame = TopRatedFrame(None, self.data)
         top_rated_frame.Show()
-        # Close the MainFrame
-        self.Close()
+        top_rated_frame.show_table()
+
 
     def on_price_distribution_button_click(self, event):
         self.price_distribution_button_clicked = True
@@ -121,9 +122,6 @@ class MainMenu(wx.Frame):
         listings_frame = listings(None, self.data)
         listings_frame.Show()
         listings_frame.show_table()
-
-
-
 
 
 
