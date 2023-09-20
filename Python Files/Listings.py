@@ -95,12 +95,12 @@ class listings(wx.Frame):
 
         # Create a wx.Panel to contain the tkinter table
         self.table_frame = wx.Panel(self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
-        self.table_frame.Show()  # Initially hide the frame
+        self.table_frame.Show()
 
         # Create a button for showing the tkinter table
         self.m_button14.Bind(wx.EVT_BUTTON, self.show_table)
         # Show the table frame
-        self.table_frame.Show()
+
 
     def create_table(self):
         # Create a tkinter window for the table
