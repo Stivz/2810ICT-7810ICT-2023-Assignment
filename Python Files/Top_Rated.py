@@ -162,7 +162,7 @@ class TopRatedFrame(wx.Frame):
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
         # Create a label and a dropdown for selecting a property type
-        property_type_label = ttk.Label(input_frame, text="Select a Property Type:")
+        property_type_label = ttk.Label(input_frame, text="Select a Property Type (Optional):")
         property_type_label.grid(row=1, column=0, padx=10, pady=5)
 
         # Remove quotation marks from property type names
