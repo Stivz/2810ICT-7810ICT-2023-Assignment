@@ -136,7 +136,7 @@ class TopRatedFrame(wx.Frame):
         screen_width = self.table_window.winfo_screenwidth()
         screen_height = self.table_window.winfo_screenheight()
 
-        self.table_window.geometry("1300x300+280+345")  # Adjust the size and coordinates as needed
+        self.table_window.geometry("1300x320+280+345")  # Adjust the size and coordinates as needed
 
         # Create a frame for user input
         input_frame = ttk.Frame(self.table_window)
