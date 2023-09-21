@@ -182,11 +182,11 @@ class TopRatedFrame(wx.Frame):
         self.tree.heading("#1", text="Name")
         self.tree.heading("#2", text="Neighborhood")
         self.tree.heading("#3", text="Property Type")
-        self.tree.heading("#3", text="Review Scores Rating")
-        self.tree.heading("#4", text="Listing URL")
+        self.tree.heading("#4", text="Review Scores Rating")
+        self.tree.heading("#5", text="Listing URL")
 
         self.tree.column("#1", width=300)
-        self.tree.column("#4", width=270)
+        self.tree.column("#5", width=270)
 
         # Pack the Treeview widget
         self.tree.pack()
