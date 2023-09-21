@@ -161,15 +161,27 @@ class TopRatedFrame(wx.Frame):
         scrollbar = ttk.Scrollbar(self.table_window)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
+        # Create a label and a dropdown for selecting a property type
+        property_type_label = ttk.Label(input_frame, text="Select a Property Type:")
+        property_type_label.grid(row=1, column=0, padx=10, pady=5)
+
+        # Remove quotation marks from property type names
+        property_types = [ptype.strip("'") for ptype in self.data['property_type'].unique()]
+
+        self.property_type_var = tk.StringVar()
+        property_type_dropdown = ttk.Combobox(input_frame, textvariable=self.property_type_var, values=property_types)
+        property_type_dropdown.grid(row=1, column=1, padx=10, pady=5)
+
         # Create a Treeview widget (table)
         self.tree = ttk.Treeview(self.table_window,
-                                 columns=("Name", "Neighborhood", "Review Scores Rating", "Listing URL"),
+                                 columns=("Name", "Neighborhood", "Property Type", "Review Scores Rating", "Listing URL"),
                                  yscrollcommand=scrollbar.set, show="headings")
         scrollbar.config(command=self.tree.yview)
 
         # Set column headings
         self.tree.heading("#1", text="Name")
         self.tree.heading("#2", text="Neighborhood")
+        self.tree.heading("#3", text="Property Type")
         self.tree.heading("#3", text="Review Scores Rating")
         self.tree.heading("#4", text="Listing URL")
 
@@ -203,19 +215,36 @@ class TopRatedFrame(wx.Frame):
 
     def update_table(self):
         selected_neighborhood = self.neighborhood_var.get()
-        filtered_data = self.data[self.data['neighbourhood_cleansed'] == selected_neighborhood]
+        selected_property_type = self.property_type_var.get()
 
-        # Sort the data by "Review Scores Rating" in descending order
-        filtered_data = filtered_data.sort_values(by="review_scores_rating", ascending=False)
+        if selected_neighborhood:
+            if selected_property_type:
+                # Filter data based on both selected neighborhood and property type
+                filtered_data = self.data[
+                    (self.data['neighbourhood_cleansed'] == selected_neighborhood) &
+                    (self.data['property_type'] == selected_property_type)
+                    ]
+            else:
+                # Filter data based on selected neighborhood only
+                filtered_data = self.data[self.data['neighbourhood_cleansed'] == selected_neighborhood]
 
-        # Clear the existing table
-        for item in self.tree.get_children():
-            self.tree.delete(item)
+            # Sort the data by "Review Scores Rating" in descending order
+            filtered_data = filtered_data.sort_values(by="review_scores_rating", ascending=False)
 
-        # Insert data into the table
-        for index, row in filtered_data.iterrows():
-            self.tree.insert("", "end", values=(
-                row["name"], row["neighbourhood_cleansed"], row["review_scores_rating"], row["listing_url"]))
+            # Clear the existing table
+            for item in self.tree.get_children():
+                self.tree.delete(item)
+
+            # Insert data into the table
+            for index, row in filtered_data.iterrows():
+                self.tree.insert("", "end", values=(
+                    row["name"], row["neighbourhood_cleansed"], row["property_type"], row["review_scores_rating"],
+                    row["listing_url"]))
+
+        else:
+            # If no neighborhood is selected, clear the table
+            for item in self.tree.get_children():
+                self.tree.delete(item)
 
     def on_back_button_click(self, event):
         from Main_Menu import MainMenu  # Import the MainMenu class from Main_Menu.py
