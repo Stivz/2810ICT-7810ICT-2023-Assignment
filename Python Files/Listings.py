@@ -4,12 +4,11 @@ import pandas as pd
 import tkinter as tk
 from tkinter import ttk
 import webbrowser
-
 import os
 
 class listings(wx.Frame):
 
-    def __init__(self, parent, data):
+    def __init__(self, parent, data, reviews_data):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString, pos=wx.DefaultPosition,
                           size=wx.Size(1980, 1080), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 
@@ -92,7 +91,7 @@ class listings(wx.Frame):
         self.m_button5.Bind(wx.EVT_BUTTON, self.on_back_button_click)
 
         self.data = data
-
+        self.reviews_data = reviews_data
         # Create a wx.Panel to contain the tkinter table
         self.table_frame = wx.Panel(self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
         self.table_frame.Show()
@@ -106,10 +105,6 @@ class listings(wx.Frame):
         # Create a tkinter window for the table
         self.table_window = tk.Tk()
         self.table_window.title("Listings Table")
-
-        # Get the screen width and height
-        screen_width = self.table_window.winfo_screenwidth()
-        screen_height = self.table_window.winfo_screenheight()
 
         self.table_window.geometry("1300x320+280+345")  # Adjust the size and coordinates as needed
 
@@ -138,6 +133,11 @@ class listings(wx.Frame):
         self.property_type_var = tk.StringVar()
         property_type_dropdown = ttk.Combobox(input_frame, textvariable=self.property_type_var, values=property_types)
         property_type_dropdown.grid(row=1, column=1, padx=10, pady=5)
+
+        # Create a "Cleanliness Analyzer" button
+        cleanliness_analyzer_button = ttk.Button(input_frame, text="Cleanliness Analyzer",
+                                                 command=self.cleanliness_analyzer)
+        cleanliness_analyzer_button.grid(row=3, column=1, pady=10)
 
         # Create a button to update the table
         update_button = ttk.Button(input_frame, text="Update Table", command=self.update_table)
@@ -171,6 +171,56 @@ class listings(wx.Frame):
 
         # Start the tkinter main loop
         self.table_window.mainloop()
+
+    def cleanliness_analyzer(self):
+        # Implement your cleanliness analysis logic here
+
+        # You can access the selected neighborhood and property type if needed
+        selected_neighborhood = self.neighborhood_var.get()
+        selected_property_type = self.property_type_var.get()
+
+        # List of cleanliness-related keywords
+        cleanliness_keywords = ["clean", "tidy", "spotless", "neat", "immaculate", "hygienic"]
+
+        # Get the filtered data
+        filtered_data = self.get_filtered_data(selected_neighborhood, selected_property_type)
+
+        # Initialize a list to store the reviews containing cleanliness-related keywords
+        reviews_with_keywords = []
+
+        # Check each review for cleanliness-related keywords in filtered data
+        for index, row in self.reviews_data.iterrows():
+            if row["listing_id"] in filtered_data["id"].values:  # Check if the listing is in filtered data
+                comments = row["comments"]
+                reviewer_name = row["reviewer_name"]
+                if isinstance(comments, str):  # Check if comments is a string
+                    review_text = comments.lower()
+                    for keyword in cleanliness_keywords:
+                        if keyword in review_text:
+                            reviews_with_keywords.append(f"Reviewer Name: {reviewer_name}\nComment: {comments}\n")
+
+            # Print the reviews containing cleanliness-related keywords to the console
+        print(f"Reviews with cleanliness-related keywords in {selected_neighborhood} ({selected_property_type}):")
+        for review in reviews_with_keywords:
+            print(review)
+
+    def get_filtered_data(self, selected_neighborhood, selected_property_type):
+        if selected_neighborhood:
+            if selected_property_type:
+                # Filter data based on both selected neighborhood and property type
+                filtered_data = self.data[
+                    (self.data['neighbourhood_cleansed'] == selected_neighborhood) &
+                    (self.data['property_type'] == selected_property_type)
+                    ]
+            else:
+                # Filter data based on selected neighborhood only
+                filtered_data = self.data[self.data['neighbourhood_cleansed'] == selected_neighborhood]
+        else:
+            # No neighborhood selected, return an empty DataFrame
+            filtered_data = pd.DataFrame()
+
+        return filtered_data
+
 
         # Method to open the URL in the default web browser
     def open_url(self, event):
@@ -235,10 +285,16 @@ class listings(wx.Frame):
 
 if __name__ == "__main__":
     data_file_path = os.path.join("..", "csv files", "listings_dec18.csv")
-    data = pd.read_csv(data_file_path)  # Load your DataFrame from a CSV file
+    reviews_file_path = os.path.join("..", "csv files", "reviews_dec18.csv")
+
+    data = pd.read_csv(data_file_path)  # Load your DataFrame from the listings CSV file
+    reviews_data = pd.read_csv(reviews_file_path)  # Load your DataFrame from the reviews CSV file
+
     print(f"Data file path: {data_file_path}")
+    print(f"Reviews file path: {reviews_file_path}")
+
     app = wx.App(False)
-    main_frame = listings(None, data)  # Pass the DataFrame as an argument
+    main_frame = listings(None, data, reviews_data)  # Pass both DataFrames as arguments
     main_frame.Show()
     app.MainLoop()
 
