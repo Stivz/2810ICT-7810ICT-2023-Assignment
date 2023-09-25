@@ -117,7 +117,7 @@ class listings(wx.Frame):
         input_frame = ttk.Frame(self.table_window)
         input_frame.pack(pady=10)
 
-        # Create a label and a dropdown for selecting a neighborhood
+        # Create a label and a dropdown for selecting a Neighborhood
         neighborhood_label = ttk.Label(input_frame, text="Select a Neighborhood:")
         neighborhood_label.grid(row=0, column=0, padx=10, pady=5)
 
