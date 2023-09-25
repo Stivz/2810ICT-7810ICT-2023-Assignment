@@ -9,12 +9,13 @@ import pandas as pd
 
 
 class MainMenu(wx.Frame):
-    def __init__(self, parent, data):
+    def __init__(self, parent, data, calendardata):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString,
                           pos=wx.DefaultPosition, size=wx.Size(1980, 1080),
                           style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 
         self.data = data  # Store the data DataFrame
+        self.calendardata = calendardata
 
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
         bSizer1 = wx.BoxSizer(wx.VERTICAL)
@@ -129,7 +130,7 @@ class MainMenu(wx.Frame):
     def on_calendar_button_click(self, event):
         self.calendar_clicked = True
         self.Close()
-        calendar_frame = calendar(None, self.data)
+        calendar_frame = calendar(None, self.calendardata, listings)
         calendar_frame.Show()
 
     def close_calendar_frame(self):
@@ -154,7 +155,9 @@ if __name__ == "__main__":
     script_directory = os.path.dirname(os.path.abspath(__file__))
     data_file_path = os.path.join(script_directory, "..", "csv files", "listings_dec18.csv")
     data = pd.read_csv(data_file_path)  # Load your DataFrame from a CSV file
-    frame = MainMenu(None, data)  # Pass the DataFrame as an argument
+    calendar_file_path = os.path.join(script_directory, "..", "csv files", "calendar_dec18.csv")
+    calendardata = pd.read_csv(calendar_file_path)  # Load your DataFrame from a CSV file
+    frame = MainMenu(None, data, calendardata)  # Pass the DataFrame as an argument
     frame.Show()
     app.MainLoop()
 
