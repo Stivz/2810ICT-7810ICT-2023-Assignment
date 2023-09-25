@@ -55,24 +55,24 @@ class listings(wx.Frame):
         bSizer19 = wx.BoxSizer(wx.HORIZONTAL)
         gSizer2 = wx.GridSizer(0, 1, 0, 0)
 
-        self.m_button14 = wx.Button(self, wx.ID_ANY, u"Listings", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.m_button14 = wx.Button(self, wx.ID_ANY, u"View Listings", wx.DefaultPosition, wx.DefaultSize, 0)
         gSizer2.Add(self.m_button14, 0, wx.ALIGN_CENTER | wx.ALL, 5)
         bSizer19.Add(gSizer2, 1, 0, 5)
         gSizer4 = wx.GridSizer(0, 1, 0, 0)
 
-        self.m_button15 = wx.Button(self, wx.ID_ANY, u"Top Rated", wx.DefaultPosition, wx.DefaultSize, 0)
-        gSizer4.Add(self.m_button15, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
-        bSizer19.Add(gSizer4, 1, 0, 5)
-        gSizer5 = wx.GridSizer(0, 1, 0, 0)
-
-        self.m_button16 = wx.Button(self, wx.ID_ANY, u"Price Distribution", wx.DefaultPosition, wx.DefaultSize, 0)
-        gSizer5.Add(self.m_button16, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
-        bSizer19.Add(gSizer5, 1, 0, 5)
-        gSizer6 = wx.GridSizer(0, 1, 0, 0)
-
-        self.m_button17 = wx.Button(self, wx.ID_ANY, u"Calendar", wx.DefaultPosition, wx.DefaultSize, 0)
-        gSizer6.Add(self.m_button17, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
-        bSizer19.Add(gSizer6, 1, 0, 5)
+        # self.m_button15 = wx.Button(self, wx.ID_ANY, u"Top Rated", wx.DefaultPosition, wx.DefaultSize, 0)
+        # gSizer4.Add(self.m_button15, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
+        # bSizer19.Add(gSizer4, 1, 0, 5)
+        # gSizer5 = wx.GridSizer(0, 1, 0, 0)
+        #
+        # self.m_button16 = wx.Button(self, wx.ID_ANY, u"Price Distribution", wx.DefaultPosition, wx.DefaultSize, 0)
+        # gSizer5.Add(self.m_button16, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
+        # bSizer19.Add(gSizer5, 1, 0, 5)
+        # gSizer6 = wx.GridSizer(0, 1, 0, 0)
+        #
+        # self.m_button17 = wx.Button(self, wx.ID_ANY, u"Calendar", wx.DefaultPosition, wx.DefaultSize, 0)
+        # gSizer6.Add(self.m_button17, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
+        # bSizer19.Add(gSizer6, 1, 0, 5)
         bSizer12.Add(bSizer19, 1, wx.ALIGN_CENTER | wx.ALL, 5)
         bSizer1.Add(bSizer12, 1, wx.EXPAND, 5)
         bSizer14 = wx.BoxSizer(wx.VERTICAL)

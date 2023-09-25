@@ -1,6 +1,8 @@
 
 import wx
 import wx.xrc
+import os
+import pandas as pd
 
 ###########################################################################
 ## Class calendar
@@ -8,7 +10,7 @@ import wx.xrc
 
 class calendar ( wx.Frame ):
 
-	def __init__( self, parent ):
+	def __init__( self, parent, data):
 		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 1980,1080 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
@@ -91,8 +93,23 @@ class calendar ( wx.Frame ):
 		self.Layout()
 
 		self.Centre( wx.BOTH )
+		self.m_button5.Bind(wx.EVT_BUTTON, self.on_back_button_click)
+		self.data = data
 
-	def __del__( self ):
-		pass
+	def on_back_button_click(self, event):
+		from Main_Menu import MainMenu  # Import the MainMenu class from Main_Menu.py
+		self.Close()
+		# Create and show a new instance of the MainMenu class
+		app = wx.App(False)
+		main_frame = MainMenu(None, self.data)
+		main_frame.Show()
+		app.MainLoop()
 
-
+if __name__ == "__main__":
+	data_file_path = os.path.join("..", "csv files", "calendar_dec18.csv")
+	data = pd.read_csv(data_file_path)  # Load your DataFrame from a CSV file
+	print(f"Data file path: {data_file_path}")
+	app = wx.App(False)
+	main_frame = calendar(None, data)  # Pass the DataFrame as an argument
+	main_frame.Show()
+	app.MainLoop()

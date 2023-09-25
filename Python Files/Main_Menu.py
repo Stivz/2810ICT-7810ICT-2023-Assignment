@@ -1,6 +1,7 @@
 from Top_Rated import TopRatedFrame  # Import the TopRatedFrame class from Top_Rated.py
 from price_distribution import PriceDistribution  # Import the PriceDistributionFrame class from price_distribution.py
 from Listings import listings
+from Calendar import calendar
 import wx
 import os
 import pandas as pd
@@ -92,11 +93,13 @@ class MainMenu(wx.Frame):
 
         self.top_rated_clicked = False  # Initialize the flag to False
         self.listings_clicked = False  # Initialize the flag to False
+        self.calendar_clicked = False
         self.price_distribution_button_clicked = False  # Initialize the flag to False
         # Bind the "Top Rated" button to the event handler
         self.m_button14.Bind(wx.EVT_BUTTON, self.on_listings_button_click)
         self.m_button15.Bind(wx.EVT_BUTTON, self.on_top_rated_button_click)
         self.m_button16.Bind(wx.EVT_BUTTON, self.on_price_distribution_button_click)
+        self.m_button17.Bind(wx.EVT_BUTTON, self.on_calendar_button_click)
 
     def on_top_rated_button_click(self, event):
         # Set the flag to True when the button is clicked
@@ -123,8 +126,19 @@ class MainMenu(wx.Frame):
         listings_frame.Show()
         listings_frame.show_table()
 
+    def on_calendar_button_click(self, event):
+        self.calendar_clicked = True
+        self.Close()
+        calendar_frame = calendar(None, self.data)
+        calendar_frame.Show()
 
+    def close_calendar_frame(self):
+        self.Close()
+        self.main_frame.Show()
 
+    def on_calendar_frame_close(self):
+        self.calendar_clicked = False
+        self.show()
 
     def close_top_rated_frame(self):
         self.Close()
