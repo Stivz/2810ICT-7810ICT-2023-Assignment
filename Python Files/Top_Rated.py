@@ -259,9 +259,11 @@ class TopRatedFrame(wx.Frame):
 
 if __name__ == "__main__":
     data_file_path = os.path.join("..", "csv files", "listings_dec18.csv")
+    reviews_file_path = os.path.join("..", "csv files", "reviews_dec18.csv")
     data = pd.read_csv(data_file_path)  # Load your DataFrame from a CSV file
+    reviews_data = pd.read_csv(reviews_file_path)  # Load your DataFrame from the reviews CSV file
     print(f"Data file path: {data_file_path}")
     app = wx.App(False)
-    main_frame = TopRatedFrame(None, data)  # Pass the DataFrame as an argument
+    main_frame = TopRatedFrame(None, data, reviews_data)  # Pass the DataFrame as an argument
     main_frame.Show()
     app.MainLoop()
