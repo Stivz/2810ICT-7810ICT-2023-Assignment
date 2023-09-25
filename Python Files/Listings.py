@@ -153,7 +153,7 @@ class listings(wx.Frame):
                                  yscrollcommand=scrollbar.set, show="headings")
         scrollbar.config(command=self.tree.yview)
 
-        # Set column headings
+        # set column headings
         self.tree.heading("#1", text="Name")
         self.tree.heading("#2", text="Neighborhood")
         self.tree.heading("#3", text="Property Type")
