@@ -9,12 +9,13 @@ import pandas as pd
 
 
 class MainMenu(wx.Frame):
-    def __init__(self, parent, data):
+    def __init__(self, parent, data, reviews_data):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString,
                           pos=wx.DefaultPosition, size=wx.Size(1980, 1080),
                           style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 
         self.data = data  # Store the data DataFrame
+        self.reviews_data = reviews_data
 
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
         bSizer1 = wx.BoxSizer(wx.VERTICAL)
@@ -106,7 +107,7 @@ class MainMenu(wx.Frame):
         self.top_rated_clicked = True
         self.Close()
         # Create and show the "Top Rated" frame
-        top_rated_frame = TopRatedFrame(None, self.data)
+        top_rated_frame = TopRatedFrame(None, self.data, self.reviews_data)
         top_rated_frame.Show()
         top_rated_frame.show_table()
 
@@ -114,7 +115,7 @@ class MainMenu(wx.Frame):
     def on_price_distribution_button_click(self, event):
         self.price_distribution_button_clicked = True
         # Create and show the PriceDistributionFrame
-        price_distribution_frame = PriceDistribution(None, self.data)
+        price_distribution_frame = PriceDistribution(None, self.data, self.reviews_data)
         price_distribution_frame.Show()
         # Close the MainMenu frame
         self.Close()
@@ -122,7 +123,7 @@ class MainMenu(wx.Frame):
     def on_listings_button_click(self, event):
         self.listings_clicked = True
         self.Close()
-        listings_frame = listings(None, self.data)
+        listings_frame = listings(None, self.data, self.reviews_data)
         listings_frame.Show()
         listings_frame.show_table()
 
@@ -153,8 +154,10 @@ if __name__ == "__main__":
     # Construct the full path to the CSV file using an absolute path
     script_directory = os.path.dirname(os.path.abspath(__file__))
     data_file_path = os.path.join(script_directory, "..", "csv files", "listings_dec18.csv")
+    reviews_file_path = os.path.join(script_directory, "..", "csv files", "reviews_dec18.csv")
     data = pd.read_csv(data_file_path)  # Load your DataFrame from a CSV file
-    frame = MainMenu(None, data)  # Pass the DataFrame as an argument
+    reviews_data = pd.read_csv(reviews_file_path)
+    frame = MainMenu(None, data, reviews_data)  # Pass the DataFrame as an argument
     frame.Show()
     app.MainLoop()
 
