@@ -131,17 +131,41 @@ class calendar(wx.Frame):
             (self.calendardata['available'] == 't')
             ]
 
-        # Merge the available_properties DataFrame with the listings DataFrame using the 'id' column
-        merged_data = available_properties.merge(
-            self.listings[['id', 'name']],  # Select 'id' and 'name' columns from listings
-            left_on='listing_id',  # Merge on 'listing_id' column of available_properties
-            right_on='id',  # Merge on 'id' column of listings
-            how='left'  # Perform a left join to keep all rows from available_properties
-        )
+        # Create a set to keep track of unique property IDs
+        unique_property_ids = set()
+
+        # Create a list to store the unique property data
+        unique_property_data = []
+
+        # Iterate through the available_properties DataFrame
+        for _, row in available_properties.iterrows():
+            property_id = row['listing_id']
+
+            # Check if this property ID has already been added to the unique_property_ids set
+            if property_id not in unique_property_ids:
+                # Add the property ID to the set to mark it as seen
+                unique_property_ids.add(property_id)
+
+                # Get the corresponding data from the listings DataFrame
+                listing_data = self.listings.loc[self.listings['id'] == property_id, ['id', 'name']].iloc[0]
+
+                # Create a new row with combined data
+                combined_row = pd.Series({
+                    'listing_id': property_id,
+                    'name': listing_data['name'],
+                    'available': row['available'],
+                    'price': row['price']
+                })
+
+                # Append the combined row to the unique_property_data list
+                unique_property_data.append(combined_row)
+
+        # Create a DataFrame from the unique_property_data list
+        merged_data = pd.DataFrame(unique_property_data)
 
         # Reorder columns as needed
         merged_data = merged_data[['listing_id', 'name', 'available', 'price']]
-        print(listings.head())
+
         # Create a new frame to display the table with a larger size
         available_properties_frame = wx.Frame(self, wx.ID_ANY, "Available Properties", size=(1080, 600))
         available_properties_panel = wx.Panel(available_properties_frame)
