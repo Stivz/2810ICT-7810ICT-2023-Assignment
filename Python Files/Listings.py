@@ -111,13 +111,13 @@ class listings(wx.Frame):
         screen_width = self.table_window.winfo_screenwidth()
         screen_height = self.table_window.winfo_screenheight()
 
-        self.table_window.geometry("1300x300+280+345")  # Adjust the size and coordinates as needed
+        self.table_window.geometry("1300x320+280+345")  # Adjust the size and coordinates as needed
 
         # Create a frame for user input
         input_frame = ttk.Frame(self.table_window)
         input_frame.pack(pady=10)
 
-        # Create a label and a dropdown for selecting a neighborhood
+        # Create a label and a dropdown for selecting a Neighborhood
         neighborhood_label = ttk.Label(input_frame, text="Select a Neighborhood:")
         neighborhood_label.grid(row=0, column=0, padx=10, pady=5)
 
@@ -127,6 +127,17 @@ class listings(wx.Frame):
         self.neighborhood_var = tk.StringVar()
         neighborhood_dropdown = ttk.Combobox(input_frame, textvariable=self.neighborhood_var, values=neighborhoods)
         neighborhood_dropdown.grid(row=0, column=1, padx=10, pady=5)
+
+        # Create a label and a dropdown for selecting a property type (optional)
+        property_type_label = ttk.Label(input_frame, text="Select a Property Type (Optional):")
+        property_type_label.grid(row=1, column=0, padx=10, pady=5)
+
+        # Remove quotation marks from property type names
+        property_types = [ptype.strip("'") for ptype in self.data['property_type'].unique()]
+
+        self.property_type_var = tk.StringVar()
+        property_type_dropdown = ttk.Combobox(input_frame, textvariable=self.property_type_var, values=property_types)
+        property_type_dropdown.grid(row=1, column=1, padx=10, pady=5)
 
         # Create a button to update the table
         update_button = ttk.Button(input_frame, text="Update Table", command=self.update_table)
@@ -181,16 +192,35 @@ class listings(wx.Frame):
 
     def update_table(self):
         selected_neighborhood = self.neighborhood_var.get()
-        filtered_data = self.data[self.data['neighbourhood_cleansed'] == selected_neighborhood]
+        selected_property_type = self.property_type_var.get()
 
-        # Clear the existing table
-        for item in self.tree.get_children():
-            self.tree.delete(item)
+        if selected_neighborhood:
+            if selected_property_type:
+                # Filter data based on both selected neighborhood and property type
+                filtered_data = self.data[
+                    (self.data['neighbourhood_cleansed'] == selected_neighborhood) &
+                    (self.data['property_type'] == selected_property_type)
+                ]
+            else:
+                # Filter data based on selected neighborhood only
+                filtered_data = self.data[self.data['neighbourhood_cleansed'] == selected_neighborhood]
 
-        # Insert data into the table
-        for index, row in filtered_data.iterrows():
-            self.tree.insert("", "end", values=(
-                row["name"], row["neighbourhood_cleansed"], row["property_type"], row["price"], row["listing_url"]))
+            # Sort the data by "Price" in ascending order
+            filtered_data = filtered_data.sort_values(by="price")
+
+            # Clear the existing table
+            for item in self.tree.get_children():
+                self.tree.delete(item)
+
+            # Insert data into the table
+            for index, row in filtered_data.iterrows():
+                self.tree.insert("", "end", values=(
+                    row["name"], row["neighbourhood_cleansed"], row["property_type"], row["price"], row["listing_url"]))
+
+        else:
+            # If no neighborhood is selected, clear the table
+            for item in self.tree.get_children():
+                self.tree.delete(item)
 
 
 
