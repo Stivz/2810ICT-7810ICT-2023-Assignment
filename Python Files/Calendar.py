@@ -6,7 +6,7 @@ import wx.grid
 
 
 class calendar(wx.Frame):
-    def __init__(self, parent, calendardata, data, reviews_data):
+    def __init__(self, parent, data, reviews_data, calendardata):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString, pos=wx.DefaultPosition,
                           size=wx.Size(1980, 1080), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 
@@ -57,26 +57,26 @@ class calendar(wx.Frame):
         bSizer15.Add(self.m_staticText2, 0, wx.ALIGN_CENTER, 5)
         bSizer12.Add(bSizer15, 1, wx.ALIGN_CENTER_HORIZONTAL | wx.EXPAND, 5)
         bSizer19 = wx.BoxSizer(wx.HORIZONTAL)
-        gSizer2 = wx.GridSizer(0, 1, 0, 0)
-
-        self.m_button14 = wx.Button(self, wx.ID_ANY, u"Listings", wx.DefaultPosition, wx.DefaultSize, 0)
-        gSizer2.Add(self.m_button14, 0, wx.ALIGN_CENTER | wx.ALL, 5)
-        bSizer19.Add(gSizer2, 1, 0, 5)
-        gSizer4 = wx.GridSizer(0, 1, 0, 0)
-
-        self.m_button15 = wx.Button(self, wx.ID_ANY, u"Top Rated", wx.DefaultPosition, wx.DefaultSize, 0)
-        gSizer4.Add(self.m_button15, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
-        bSizer19.Add(gSizer4, 1, 0, 5)
-        gSizer5 = wx.GridSizer(0, 1, 0, 0)
-
-        self.m_button16 = wx.Button(self, wx.ID_ANY, u"Price Distribution", wx.DefaultPosition, wx.DefaultSize, 0)
-        gSizer5.Add(self.m_button16, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
-        bSizer19.Add(gSizer5, 1, 0, 5)
-        gSizer6 = wx.GridSizer(0, 1, 0, 0)
-
-        self.m_button17 = wx.Button(self, wx.ID_ANY, u"Calendar", wx.DefaultPosition, wx.DefaultSize, 0)
-        gSizer6.Add(self.m_button17, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
-        bSizer19.Add(gSizer6, 1, 0, 5)
+        # gSizer2 = wx.GridSizer(0, 1, 0, 0)
+        #
+        # self.m_button14 = wx.Button(self, wx.ID_ANY, u"Listings", wx.DefaultPosition, wx.DefaultSize, 0)
+        # gSizer2.Add(self.m_button14, 0, wx.ALIGN_CENTER | wx.ALL, 5)
+        # bSizer19.Add(gSizer2, 1, 0, 5)
+        # gSizer4 = wx.GridSizer(0, 1, 0, 0)
+        #
+        # self.m_button15 = wx.Button(self, wx.ID_ANY, u"Top Rated", wx.DefaultPosition, wx.DefaultSize, 0)
+        # gSizer4.Add(self.m_button15, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
+        # bSizer19.Add(gSizer4, 1, 0, 5)
+        # gSizer5 = wx.GridSizer(0, 1, 0, 0)
+        #
+        # self.m_button16 = wx.Button(self, wx.ID_ANY, u"Price Distribution", wx.DefaultPosition, wx.DefaultSize, 0)
+        # gSizer5.Add(self.m_button16, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
+        # bSizer19.Add(gSizer5, 1, 0, 5)
+        # gSizer6 = wx.GridSizer(0, 1, 0, 0)
+        #
+        # self.m_button17 = wx.Button(self, wx.ID_ANY, u"Calendar", wx.DefaultPosition, wx.DefaultSize, 0)
+        # gSizer6.Add(self.m_button17, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
+        # bSizer19.Add(gSizer6, 1, 0, 5)
 
         # Create a panel for the date pickers and confirm button
         panel = wx.Panel(self)
@@ -201,7 +201,7 @@ class calendar(wx.Frame):
         self.Close()
         # Create and show a new instance of the MainMenu class
         app = wx.App(False)
-        main_frame = MainMenu(None, self.calendardata, self.data, self.reviews_data)
+        main_frame = MainMenu(None, self.data, self.reviews_data, self.calendardata)
         main_frame.Show()
         app.MainLoop()
 

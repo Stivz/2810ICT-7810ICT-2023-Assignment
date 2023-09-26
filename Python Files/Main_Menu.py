@@ -131,7 +131,7 @@ class MainMenu(wx.Frame):
     def on_calendar_button_click(self, event):
         self.calendar_clicked = True
         self.Close()
-        calendar_frame = calendar(None, self.calendardata, self.data, self.reviews_data)
+        calendar_frame = calendar(None, self.data, self.reviews_data, self.calendardata)
         calendar_frame.Show()
 
     def close_calendar_frame(self):
