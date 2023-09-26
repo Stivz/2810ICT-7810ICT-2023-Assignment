@@ -5,7 +5,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 
 class PriceDistribution(wx.Frame):
-    def __init__(self, parent, data, reviews_data):
+    def __init__(self, parent, data, reviews_data, calendardata):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString, pos=wx.DefaultPosition,
                           size=wx.Size(1980, 1080), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 
@@ -136,6 +136,7 @@ class PriceDistribution(wx.Frame):
         self.m_button5.Bind(wx.EVT_BUTTON, self.on_back_button_click)
 
         self.data = data  # Store the DataFrame for later use
+        self.calendardata = calendardata
         self.reviews_data = reviews_data
         # Create a Figure and a canvas for displaying the plot
         self.figure = Figure(figsize=(7, 6))
@@ -210,7 +211,7 @@ class PriceDistribution(wx.Frame):
         self.Close()
         # Create and show a new instance of the MainMenu class
         app = wx.App(False)
-        main_frame = MainMenu(None, self.data, self.reviews_data)
+        main_frame = MainMenu(None, self.data, self.reviews_data, self.calendardata)
         main_frame.Show()
         app.MainLoop()
 

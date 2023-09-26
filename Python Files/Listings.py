@@ -8,7 +8,7 @@ import os
 
 class listings(wx.Frame):
 
-    def __init__(self, parent, data, reviews_data):
+    def __init__(self, parent, data, reviews_data, calendardata):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString, pos=wx.DefaultPosition,
                           size=wx.Size(1980, 1080), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 
@@ -91,6 +91,7 @@ class listings(wx.Frame):
         self.m_button5.Bind(wx.EVT_BUTTON, self.on_back_button_click)
 
         self.data = data
+        self.calendardata = calendardata
         self.reviews_data = reviews_data
         # Create a wx.Panel to contain the tkinter table
         self.table_frame = wx.Panel(self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
@@ -279,7 +280,7 @@ class listings(wx.Frame):
         self.Close()
         # Create and show a new instance of the MainMenu class
         app = wx.App(False)
-        main_frame = MainMenu(None, self.data, self.reviews_data)
+        main_frame = MainMenu(None, self.data, self.reviews_data, self. calendardata)
         main_frame.Show()
         app.MainLoop()
 

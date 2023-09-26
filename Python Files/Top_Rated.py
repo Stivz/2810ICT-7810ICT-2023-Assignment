@@ -6,7 +6,7 @@ from tkinter import ttk
 import os
 import webbrowser
 class TopRatedFrame(wx.Frame):
-    def __init__(self, parent, data, reviews_data):
+    def __init__(self, parent, data, reviews_data, calendardata):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString, pos=wx.DefaultPosition,
                           size=wx.Size(1980, 1080), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 
@@ -119,6 +119,7 @@ class TopRatedFrame(wx.Frame):
 
         self.data = data  # Store the DataFrame for later use
         self.reviews_data = reviews_data
+        self.calendardata = calendardata
         # Create a wx.Panel to contain the tkinter table
         self.table_frame = wx.Panel(self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
         self.table_frame.Show()
@@ -253,7 +254,7 @@ class TopRatedFrame(wx.Frame):
         self.Close()
         # Create and show a new instance of the MainMenu class
         app = wx.App(False)
-        main_frame = MainMenu(None, self.data, self.reviews_data)
+        main_frame = MainMenu(None, self.data, self.reviews_data, self.calendardata)
         main_frame.Show()
         app.MainLoop()
 

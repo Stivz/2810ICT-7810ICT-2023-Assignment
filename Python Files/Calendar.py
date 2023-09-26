@@ -6,13 +6,13 @@ import wx.grid
 
 
 class calendar(wx.Frame):
-    def __init__(self, parent, calendardata, listings):
+    def __init__(self, parent, calendardata, data):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString, pos=wx.DefaultPosition,
                           size=wx.Size(1980, 1080), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
         self.calendardata = calendardata  # Store the DataFrame for later use
-        self.listings = listings  # Listings data DataFrame
+        self.data = data
 
         bSizer1 = wx.BoxSizer(wx.VERTICAL)
         bSizer12 = wx.BoxSizer(wx.VERTICAL)
@@ -107,7 +107,6 @@ class calendar(wx.Frame):
 
         self.SetSizer(bSizer1)
         self.Layout()
-
         self.Centre(wx.BOTH)
         self.m_button5.Bind(wx.EVT_BUTTON, self.on_back_button_click)
         self.confirm_button.Bind(wx.EVT_BUTTON, self.on_confirm_button_click)
@@ -147,7 +146,7 @@ class calendar(wx.Frame):
                 unique_property_ids.add(property_id)
 
                 # Get the corresponding data from the listings DataFrame
-                listing_data = self.listings.loc[self.listings['id'] == property_id, ['id', 'name']].iloc[0]
+                listing_data = self.data.loc[self.data['id'] == property_id, ['id', 'name']].iloc[0]
 
                 # Create a new row with combined data
                 combined_row = pd.Series({
@@ -171,6 +170,11 @@ class calendar(wx.Frame):
         available_properties_panel = wx.Panel(available_properties_frame)
         available_properties_sizer = wx.BoxSizer(wx.VERTICAL)
 
+        # Display the selected date range
+        date_range_text = wx.StaticText(available_properties_panel, wx.ID_ANY,
+                                        f"Selected Date Range: {start_date_str} to {end_date_str}")
+        available_properties_sizer.Add(date_range_text, 0, wx.ALIGN_LEFT | wx.ALL, 10)
+
         # Create a data grid to display the merged data
         grid = wx.grid.Grid(available_properties_panel)
         grid.CreateGrid(len(merged_data), len(merged_data.columns))
@@ -191,7 +195,6 @@ class calendar(wx.Frame):
         available_properties_panel.SetSizerAndFit(available_properties_sizer)
         available_properties_frame.Show()
 
-
     def on_back_button_click(self, event):
         from Main_Menu import MainMenu  # Import the MainMenu class from Main_Menu.py
         self.Close()
@@ -204,11 +207,11 @@ class calendar(wx.Frame):
 
 if __name__ == "__main__":
     calendar_data_file_path = os.path.abspath("..\\csv files\\calendar_dec18.csv")
-    listings_data_file_path = os.path.abspath("..\\csv files\\listings_dec18.csv")
-    data = pd.read_csv(calendar_data_file_path)
-    listings = pd.read_csv(listings_data_file_path)
+    data_file_path = os.path.join("..", "csv files", "listings_dec18.csv")
+    data = pd.read_csv(data_file_path)  # Load your DataFrame from a CSV file
+    calendar = pd.read_csv(calendar_data_file_path)
 
     app = wx.App(False)
-    main_frame = calendar(None, data, listings)  # Pass both dataframes as arguments
+    main_frame = calendar(None, data, calendar)  # Pass both dataframes as arguments
     main_frame.Show()
     app.MainLoop()
