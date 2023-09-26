@@ -6,13 +6,14 @@ import wx.grid
 
 
 class calendar(wx.Frame):
-    def __init__(self, parent, calendardata, data):
+    def __init__(self, parent, calendardata, data, reviews_data):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString, pos=wx.DefaultPosition,
                           size=wx.Size(1980, 1080), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
         self.calendardata = calendardata  # Store the DataFrame for later use
         self.data = data
+        self.reviews_data = reviews_data
 
         bSizer1 = wx.BoxSizer(wx.VERTICAL)
         bSizer12 = wx.BoxSizer(wx.VERTICAL)
@@ -122,7 +123,7 @@ class calendar(wx.Frame):
 
         start_date_str = start_date.Format('%Y-%m-%d')
         end_date_str = end_date.Format('%Y-%m-%d')
-
+        print(self.calendardata.head())
         # Filter the DataFrame to get available properties within the selected date range
         available_properties = self.calendardata[
             (self.calendardata['date'] >= start_date_str) &
@@ -161,7 +162,7 @@ class calendar(wx.Frame):
 
         # Create a DataFrame from the unique_property_data list
         merged_data = pd.DataFrame(unique_property_data)
-
+        print(merged_data.head())
         # Reorder columns as needed
         merged_data = merged_data[['listing_id', 'name', 'available', 'price']]
 
@@ -200,18 +201,18 @@ class calendar(wx.Frame):
         self.Close()
         # Create and show a new instance of the MainMenu class
         app = wx.App(False)
-        main_frame = MainMenu(None, self.calendardata)
+        main_frame = MainMenu(None, self.calendardata, self.data, self.reviews_data)
         main_frame.Show()
         app.MainLoop()
 
 
 if __name__ == "__main__":
-    calendar_data_file_path = os.path.abspath("..\\csv files\\calendar_dec18.csv")
+    calendar_data_file_path = os.path.join("..", 'csv files', "calendar_dec18.csv")
     data_file_path = os.path.join("..", "csv files", "listings_dec18.csv")
     data = pd.read_csv(data_file_path)  # Load your DataFrame from a CSV file
-    calendar = pd.read_csv(calendar_data_file_path)
+    calendardata = pd.read_csv(calendar_data_file_path)
 
     app = wx.App(False)
-    main_frame = calendar(None, data, calendar)  # Pass both dataframes as arguments
+    main_frame = calendar(None, data, calendar, dtype={'price': str})  # Pass both dataframes as arguments
     main_frame.Show()
     app.MainLoop()
