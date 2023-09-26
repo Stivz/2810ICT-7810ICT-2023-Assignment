@@ -60,19 +60,6 @@ class listings(wx.Frame):
         bSizer19.Add(gSizer2, 1, 0, 5)
         gSizer4 = wx.GridSizer(0, 1, 0, 0)
 
-        # self.m_button15 = wx.Button(self, wx.ID_ANY, u"Top Rated", wx.DefaultPosition, wx.DefaultSize, 0)
-        # gSizer4.Add(self.m_button15, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
-        # bSizer19.Add(gSizer4, 1, 0, 5)
-        # gSizer5 = wx.GridSizer(0, 1, 0, 0)
-        #
-        # self.m_button16 = wx.Button(self, wx.ID_ANY, u"Price Distribution", wx.DefaultPosition, wx.DefaultSize, 0)
-        # gSizer5.Add(self.m_button16, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
-        # bSizer19.Add(gSizer5, 1, 0, 5)
-        # gSizer6 = wx.GridSizer(0, 1, 0, 0)
-        #
-        # self.m_button17 = wx.Button(self, wx.ID_ANY, u"Calendar", wx.DefaultPosition, wx.DefaultSize, 0)
-        # gSizer6.Add(self.m_button17, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
-        # bSizer19.Add(gSizer6, 1, 0, 5)
         bSizer12.Add(bSizer19, 1, wx.ALIGN_CENTER | wx.ALL, 5)
         bSizer1.Add(bSizer12, 1, wx.EXPAND, 5)
         bSizer14 = wx.BoxSizer(wx.VERTICAL)
@@ -107,7 +94,7 @@ class listings(wx.Frame):
         self.table_window = tk.Tk()
         self.table_window.title("Listings Table")
 
-        self.table_window.geometry("1300x320+280+345")  # Adjust the size and coordinates as needed
+        self.table_window.geometry("1300x600+340+345")  # Adjust the size and coordinates as needed
 
         # Create a frame for user input
         input_frame = ttk.Frame(self.table_window)
@@ -148,21 +135,41 @@ class listings(wx.Frame):
         scrollbar = ttk.Scrollbar(self.table_window)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
+
         # Create a Treeview widget (table)
         self.tree = ttk.Treeview(self.table_window,
-                                 columns=("Name", "Neighborhood", "Property Type", "Price", "Listing URL"),
+                                 columns=(
+                                 "Listing ID", "Name", "Neighborhood", "Property Type", "Price", "Listing URL"),
                                  yscrollcommand=scrollbar.set, show="headings")
         scrollbar.config(command=self.tree.yview)
 
-        # set column headings
-        self.tree.heading("#1", text="Name")
-        self.tree.heading("#2", text="Neighborhood")
-        self.tree.heading("#3", text="Property Type")
-        self.tree.heading("#4", text="Price")
-        self.tree.heading("#5", text="Listing URL")
+        # Set column headings for the modified table
+        self.tree.heading("#1", text="Listing ID")
+        self.tree.heading("#2", text="Name")
+        self.tree.heading("#3", text="Neighborhood")
+        self.tree.heading("#4", text="Property Type")
+        self.tree.heading("#5", text="Price")
+        self.tree.heading("#6", text="Listing URL")
 
-        self.tree.column("#1", width=300)
-        self.tree.column("#5", width=230)
+        self.tree.column("#1", width=100)
+        self.tree.column("#2", width=300)
+        self.tree.column("#3", width=150)
+        self.tree.column("#4", width=150)
+        self.tree.column("#5", width=150)
+        self.tree.column("#6", width=240)
+
+        # Create a new Treeview widget for displaying matching comments
+        self.cleanliness_table = ttk.Treeview(self.table_window, columns=("Listing ID", "Reviewer Name", "Comment"),
+                                              show="headings")
+
+        # Set column headings for the new table
+        self.cleanliness_table.heading("#1", text="Listing ID")
+        self.cleanliness_table.heading("#2", text="Reviewer Name")
+        self.cleanliness_table.heading("#3", text="Comment")
+
+        self.cleanliness_table.column("#1", width=100)
+        self.cleanliness_table.column("#2", width=100)
+        self.cleanliness_table.column("#3", width=890)
 
         # Pack the Treeview widget
         self.tree.pack()
@@ -176,7 +183,6 @@ class listings(wx.Frame):
     def cleanliness_analyzer(self):
         # Implement your cleanliness analysis logic here
 
-        # You can access the selected neighborhood and property type if needed
         selected_neighborhood = self.neighborhood_var.get()
         selected_property_type = self.property_type_var.get()
 
@@ -186,24 +192,28 @@ class listings(wx.Frame):
         # Get the filtered data
         filtered_data = self.get_filtered_data(selected_neighborhood, selected_property_type)
 
-        # Initialize a list to store the reviews containing cleanliness-related keywords
-        reviews_with_keywords = []
+        # Clear any previous data from the cleanliness table
+        self.cleanliness_table.delete(*self.cleanliness_table.get_children())
 
-        # Check each review for cleanliness-related keywords in filtered data
+        # Check each review for cleanliness-related keywords in the filtered data
         for index, row in self.reviews_data.iterrows():
             if row["listing_id"] in filtered_data["id"].values:  # Check if the listing is in filtered data
                 comments = row["comments"]
                 reviewer_name = row["reviewer_name"]
+                listing_id = row["listing_id"]
                 if isinstance(comments, str):  # Check if comments is a string
                     review_text = comments.lower()
                     for keyword in cleanliness_keywords:
                         if keyword in review_text:
-                            reviews_with_keywords.append(f"Reviewer Name: {reviewer_name}\nComment: {comments}\n")
+                            # Insert matching comments into the cleanliness table
+                            self.cleanliness_table.insert("", "end", values=(listing_id, reviewer_name, comments, ))
 
-            # Print the reviews containing cleanliness-related keywords to the console
-        print(f"Reviews with cleanliness-related keywords in {selected_neighborhood} ({selected_property_type}):")
-        for review in reviews_with_keywords:
-            print(review)
+        # After analyzing comments, show the cleanliness table
+        self.show_cleanliness_table()
+
+    def show_cleanliness_table(self):
+        self.cleanliness_table.pack()
+
 
     def get_filtered_data(self, selected_neighborhood, selected_property_type):
         if selected_neighborhood:
@@ -266,6 +276,7 @@ class listings(wx.Frame):
             # Insert data into the table
             for index, row in filtered_data.iterrows():
                 self.tree.insert("", "end", values=(
+                    row["id"],
                     row["name"], row["neighbourhood_cleansed"], row["property_type"], row["price"], row["listing_url"]))
 
         else:
@@ -273,7 +284,28 @@ class listings(wx.Frame):
             for item in self.tree.get_children():
                 self.tree.delete(item)
 
+    def wrap_text(text, width):
+        """
+        Split text into multiple lines, each with a maximum width.
+        """
+        if len(text) <= width:
+            return [text]
+        else:
+            words = text.split()
+            lines = []
+            current_line = ""
 
+            for word in words:
+                if len(current_line) + len(word) + 1 <= width:
+                    current_line += word + " "
+                else:
+                    lines.append(current_line)
+                    current_line = word + " "
+
+            if current_line:
+                lines.append(current_line)
+
+            return lines
 
     def on_back_button_click(self, event):
         from Main_Menu import MainMenu  # Import the MainMenu class from Main_Menu.py
