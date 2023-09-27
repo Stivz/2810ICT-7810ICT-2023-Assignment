@@ -150,7 +150,7 @@ class listings(wx.Frame):
 
         # Create a button to update the table
         update_button = ttk.Button(input_frame, text="Update Table", command=self.update_table)
-        update_button.grid(row=0, column=2, padx=(5,50), pady=5)
+        update_button.grid(row=0, column=2, padx=(5,60), pady=5)
 
         # Create a scrollbar
         scrollbar = ttk.Scrollbar(self.table_window)
