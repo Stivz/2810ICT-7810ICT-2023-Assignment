@@ -1,7 +1,7 @@
 from Top_Rated import TopRatedFrame  # Import the TopRatedFrame class from Top_Rated.py
 from price_distribution import PriceDistribution  # Import the PriceDistributionFrame class from price_distribution.py
 from Listings import listings
-from Calendar import calendar
+from Keyword_Seach import keyword
 import wx
 import os
 import pandas as pd
@@ -74,7 +74,7 @@ class MainMenu(wx.Frame):
         bSizer19.Add(gSizer5, 1, 0, 5)
         gSizer6 = wx.GridSizer(0, 1, 0, 0)
 
-        self.m_button17 = wx.Button(self, wx.ID_ANY, u"Calendar", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.m_button17 = wx.Button(self, wx.ID_ANY, u"Keyword Search", wx.DefaultPosition, wx.DefaultSize, 0)
         gSizer6.Add(self.m_button17, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
         bSizer19.Add(gSizer6, 1, 0, 5)
         bSizer12.Add(bSizer19, 1, wx.ALIGN_CENTER | wx.ALL, 5)
@@ -95,13 +95,13 @@ class MainMenu(wx.Frame):
 
         self.top_rated_clicked = False  # Initialize the flag to False
         self.listings_clicked = False  # Initialize the flag to False
-        self.calendar_clicked = False
+        self.keyword_clicked = False
         self.price_distribution_button_clicked = False  # Initialize the flag to False
         # Bind the "Top Rated" button to the event handler
         self.m_button14.Bind(wx.EVT_BUTTON, self.on_listings_button_click)
         self.m_button15.Bind(wx.EVT_BUTTON, self.on_top_rated_button_click)
         self.m_button16.Bind(wx.EVT_BUTTON, self.on_price_distribution_button_click)
-        self.m_button17.Bind(wx.EVT_BUTTON, self.on_calendar_button_click)
+        self.m_button17.Bind(wx.EVT_BUTTON, self.on_keyword_button_click)
 
     def on_top_rated_button_click(self, event):
         # Set the flag to True when the button is clicked
@@ -128,18 +128,18 @@ class MainMenu(wx.Frame):
         listings_frame.Show()
         listings_frame.show_table()
 
-    def on_calendar_button_click(self, event):
-        self.calendar_clicked = True
+    def on_keyword_button_click(self, event):
+        self.keyword_clicked = True
         self.Close()
-        calendar_frame = calendar(None, self.data, self.reviews_data, self.calendardata)
-        calendar_frame.Show()
+        keyword_frame = keyword(None, self.data, self.reviews_data, self.calendardata)
+        keyword_frame.Show()
 
-    def close_calendar_frame(self):
+    def close_keyword_frame(self):
         self.Close()
         self.main_frame.Show()
 
-    def on_calendar_frame_close(self):
-        self.calendar_clicked = False
+    def on_keyword_frame_close(self):
+        self.keyword_clicked = False
         self.show()
 
     def close_top_rated_frame(self):

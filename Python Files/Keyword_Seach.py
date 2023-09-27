@@ -3,9 +3,10 @@ import wx.adv
 import os
 import pandas as pd
 import wx.grid
+import random
 
 
-class calendar(wx.Frame):
+class keyword(wx.Frame):
     def __init__(self, parent, data, reviews_data, calendardata):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString, pos=wx.DefaultPosition,
                           size=wx.Size(1980, 1080), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
@@ -50,35 +51,15 @@ class calendar(wx.Frame):
             wx.Font(30, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, wx.EmptyString))
         bSizer15.Add(self.m_staticText7, 0, wx.ALIGN_CENTER | wx.ALL, 5)
 
-        self.m_staticText2 = wx.StaticText(self, wx.ID_ANY, u"Calendar", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.m_staticText2 = wx.StaticText(self, wx.ID_ANY, u"Keyword search for available properties", wx.DefaultPosition, wx.DefaultSize, 0)
         self.m_staticText2.Wrap(-1)
         self.m_staticText2.SetFont(
             wx.Font(20, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, wx.EmptyString))
         bSizer15.Add(self.m_staticText2, 0, wx.ALIGN_CENTER, 5)
         bSizer12.Add(bSizer15, 1, wx.ALIGN_CENTER_HORIZONTAL | wx.EXPAND, 5)
         bSizer19 = wx.BoxSizer(wx.HORIZONTAL)
-        # gSizer2 = wx.GridSizer(0, 1, 0, 0)
-        #
-        # self.m_button14 = wx.Button(self, wx.ID_ANY, u"Listings", wx.DefaultPosition, wx.DefaultSize, 0)
-        # gSizer2.Add(self.m_button14, 0, wx.ALIGN_CENTER | wx.ALL, 5)
-        # bSizer19.Add(gSizer2, 1, 0, 5)
-        # gSizer4 = wx.GridSizer(0, 1, 0, 0)
-        #
-        # self.m_button15 = wx.Button(self, wx.ID_ANY, u"Top Rated", wx.DefaultPosition, wx.DefaultSize, 0)
-        # gSizer4.Add(self.m_button15, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
-        # bSizer19.Add(gSizer4, 1, 0, 5)
-        # gSizer5 = wx.GridSizer(0, 1, 0, 0)
-        #
-        # self.m_button16 = wx.Button(self, wx.ID_ANY, u"Price Distribution", wx.DefaultPosition, wx.DefaultSize, 0)
-        # gSizer5.Add(self.m_button16, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
-        # bSizer19.Add(gSizer5, 1, 0, 5)
-        # gSizer6 = wx.GridSizer(0, 1, 0, 0)
-        #
-        # self.m_button17 = wx.Button(self, wx.ID_ANY, u"Calendar", wx.DefaultPosition, wx.DefaultSize, 0)
-        # gSizer6.Add(self.m_button17, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
-        # bSizer19.Add(gSizer6, 1, 0, 5)
 
-        # Create a panel for the date pickers and confirm button
+        # Create a panel for the date pickers, search box, and confirm button
         panel = wx.Panel(self)
         panel_sizer = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -92,11 +73,16 @@ class calendar(wx.Frame):
         # Add the date pickers and "Confirm" button to the panel_sizer
         panel_sizer.Add(self.start_date_picker, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
         panel_sizer.Add(self.end_date_picker, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
+
+        # Create a text box for keyword search
+        self.keyword_textbox = wx.TextCtrl(panel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0)
+        panel_sizer.Add(self.keyword_textbox, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
+
         panel_sizer.Add(self.confirm_button, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
 
         panel.SetSizer(panel_sizer)
 
-        # Add the panel with date pickers and confirm button to the main button sizer
+        # Add the panel with date pickers, search box, and confirm button to the main button sizer
         bSizer19.Add(panel, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
         bSizer12.Add(bSizer19, 0, wx.ALIGN_CENTER | wx.ALL, 5)
@@ -115,6 +101,7 @@ class calendar(wx.Frame):
     def on_confirm_button_click(self, event):
         start_date = self.start_date_picker.GetValue()
         end_date = self.end_date_picker.GetValue()
+        keyword = self.keyword_textbox.GetValue().strip().lower()  # Get the keyword from the text box and convert to lowercase
 
         # Ensure start_date is earlier than end_date
         if start_date > end_date:
@@ -123,7 +110,7 @@ class calendar(wx.Frame):
 
         start_date_str = start_date.Format('%Y-%m-%d')
         end_date_str = end_date.Format('%Y-%m-%d')
-        print(self.calendardata.head())
+
         # Filter the DataFrame to get available properties within the selected date range
         available_properties = self.calendardata[
             (self.calendardata['date'] >= start_date_str) &
@@ -147,27 +134,39 @@ class calendar(wx.Frame):
                 unique_property_ids.add(property_id)
 
                 # Get the corresponding data from the listings DataFrame
-                listing_data = self.data.loc[self.data['id'] == property_id, ['id', 'name']].iloc[0]
+                listing_data = self.data.loc[self.data['id'] == property_id, ['id', 'name', 'amenities']].iloc[0]
 
-                # Create a new row with combined data
-                combined_row = pd.Series({
-                    'listing_id': property_id,
-                    'name': listing_data['name'],
-                    'available': row['available'],
-                    'price': row['price']
-                })
+                # Check if the keyword is present in the amenities (converted to lowercase)
+                if keyword in listing_data['amenities'].lower():
+                    # Create a list of searched amenities
+                    searched_amenities = [keyword]
 
-                # Append the combined row to the unique_property_data list
-                unique_property_data.append(combined_row)
+                    # Split the amenities string into a list and remove leading/trailing spaces
+                    all_amenities = [amenity.strip() for amenity in listing_data['amenities'].split(',')]
+
+                    # Randomly select 5 additional amenities from the property
+                    additional_amenities = random.sample(all_amenities, min(5, len(all_amenities)))
+
+                    # Combine the searched and additional amenities
+                    combined_amenities = searched_amenities + additional_amenities
+
+                    # Create a new row with combined data
+                    combined_row = pd.Series({
+                        'listing_id': property_id,
+                        'name': listing_data['name'],
+                        'available': row['available'],
+                        'price': row['price'],
+                        'amenities': ', '.join(combined_amenities)  # Include the combined amenities information
+                    })
+
+                    # Append the combined row to the unique_property_data list
+                    unique_property_data.append(combined_row)
 
         # Create a DataFrame from the unique_property_data list
         merged_data = pd.DataFrame(unique_property_data)
-        print(merged_data.head())
-        # Reorder columns as needed
-        merged_data = merged_data[['listing_id', 'name', 'available', 'price']]
 
         # Create a new frame to display the table with a larger size
-        available_properties_frame = wx.Frame(self, wx.ID_ANY, "Available Properties", size=(1080, 600))
+        available_properties_frame = wx.Frame(None, wx.ID_ANY, "Available Properties", size=(1200, 600))
         available_properties_panel = wx.Panel(available_properties_frame)
         available_properties_sizer = wx.BoxSizer(wx.VERTICAL)
 
@@ -178,7 +177,7 @@ class calendar(wx.Frame):
 
         # Create a data grid to display the merged data
         grid = wx.grid.Grid(available_properties_panel)
-        grid.CreateGrid(len(merged_data), len(merged_data.columns))
+        grid.CreateGrid(len(merged_data), len(merged_data.columns))  # Remove +1 for the amenities column
 
         # Set column labels
         for col, column_name in enumerate(merged_data.columns):
@@ -194,6 +193,15 @@ class calendar(wx.Frame):
 
         available_properties_sizer.Add(grid, 1, wx.EXPAND | wx.ALL, 10)
         available_properties_panel.SetSizerAndFit(available_properties_sizer)
+
+        # Calculate the position to center the frame on the screen
+        screen_size = wx.DisplaySize()
+        frame_size = available_properties_frame.GetSize()
+        x = (screen_size[0] - frame_size[0]) // 2
+        y = (screen_size[1] - frame_size[1]) // 2
+
+        # Set the frame position
+        available_properties_frame.SetPosition((x, y))
         available_properties_frame.Show()
 
     def on_back_button_click(self, event):
@@ -213,6 +221,6 @@ if __name__ == "__main__":
     calendardata = pd.read_csv(calendar_data_file_path)
 
     app = wx.App(False)
-    main_frame = calendar(None, data, calendar, dtype={'price': str})  # Pass both dataframes as arguments
+    main_frame = keyword(None, data, keyword, dtype={'price': str})  # Pass both dataframes as arguments
     main_frame.Show()
     app.MainLoop()
