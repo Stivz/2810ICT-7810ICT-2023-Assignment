@@ -4,6 +4,7 @@ import pandas as pd
 import tkinter as tk
 from tkinter import ttk
 import webbrowser
+import tkcalendar as tkcal
 import os
 
 class listings(wx.Frame):
@@ -11,6 +12,7 @@ class listings(wx.Frame):
     def __init__(self, parent, data, reviews_data, calendardata):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString, pos=wx.DefaultPosition,
                           size=wx.Size(1980, 1080), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
+
 
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
         bSizer1 = wx.BoxSizer(wx.VERTICAL)
@@ -77,9 +79,7 @@ class listings(wx.Frame):
         self.Centre(wx.BOTH)
         self.m_button5.Bind(wx.EVT_BUTTON, self.on_back_button_click)
 
-        self.data = data
-        self.calendardata = calendardata
-        self.reviews_data = reviews_data
+
         # Create a wx.Panel to contain the tkinter table
         self.table_frame = wx.Panel(self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
         self.table_frame.Show()
@@ -88,6 +88,9 @@ class listings(wx.Frame):
         self.m_button14.Bind(wx.EVT_BUTTON, self.show_table)
         # Show the table frame
 
+        self.data = data
+        self.reviews_data = reviews_data
+        self.calendardata = calendardata
 
     def create_table(self):
         # Create a tkinter window for the table
@@ -122,6 +125,24 @@ class listings(wx.Frame):
         property_type_dropdown = ttk.Combobox(input_frame, textvariable=self.property_type_var, values=property_types)
         property_type_dropdown.grid(row=1, column=1, padx=10, pady=5)
 
+        # Create a label for date selection
+        date_label = ttk.Label(input_frame, text="Date Range:")
+        date_label.grid(row=2, column=0, padx=10, pady=5)
+
+        self.start_date_var = tk.StringVar()
+        self.end_date_var = tk.StringVar()
+        # Create a Start Date Entry widget using DateEntry
+        start_date_entry = tkcal.DateEntry(input_frame, textvariable=self.start_date_var, date_pattern='yyyy-mm-dd')
+        start_date_entry.grid(row=2, column=1, padx=(5, 50), pady=5)  # Add padx to separate the date boxes
+
+        # Create a label for "to" between start and end dates
+        to_label = ttk.Label(input_frame, text="to")
+        to_label.grid(row=2, column=1, padx=(5, 20), pady=5, sticky="e")
+
+        # Create an End Date Entry widget using DateEntry
+        end_date_entry = tkcal.DateEntry(input_frame, textvariable=self.end_date_var, date_pattern='yyyy-mm-dd')
+        end_date_entry.grid(row=2, column=2, padx=(5, 50), pady=5)
+
         # Create a "Cleanliness Analyzer" button
         cleanliness_analyzer_button = ttk.Button(input_frame, text="Cleanliness Analyzer",
                                                  command=self.cleanliness_analyzer)
@@ -129,7 +150,7 @@ class listings(wx.Frame):
 
         # Create a button to update the table
         update_button = ttk.Button(input_frame, text="Update Table", command=self.update_table)
-        update_button.grid(row=0, column=2, padx=10, pady=5)
+        update_button.grid(row=0, column=2, padx=(5,50), pady=5)
 
         # Create a scrollbar
         scrollbar = ttk.Scrollbar(self.table_window)
@@ -254,6 +275,8 @@ class listings(wx.Frame):
     def update_table(self):
         selected_neighborhood = self.neighborhood_var.get()
         selected_property_type = self.property_type_var.get()
+        start_date = self.start_date_var.get()
+        end_date = self.end_date_var.get()
 
         if selected_neighborhood:
             if selected_property_type:
@@ -261,10 +284,18 @@ class listings(wx.Frame):
                 filtered_data = self.data[
                     (self.data['neighbourhood_cleansed'] == selected_neighborhood) &
                     (self.data['property_type'] == selected_property_type)
-                ]
+                    ]
             else:
                 # Filter data based on selected neighborhood only
                 filtered_data = self.data[self.data['neighbourhood_cleansed'] == selected_neighborhood]
+
+            # If start_date and end_date are provided, filter by the date range
+            if start_date and end_date:
+                filtered_data = filtered_data[filtered_data['id'].isin(self.calendardata[
+                                                                           (self.calendardata['date'] >= start_date) & (
+                                                                                       self.calendardata[
+                                                                                           'date'] <= end_date)][
+                                                                           'listing_id'])]
 
             # Sort the data by "Price" in ascending order
             filtered_data = filtered_data.sort_values(by="price")
@@ -319,15 +350,16 @@ class listings(wx.Frame):
 if __name__ == "__main__":
     data_file_path = os.path.join("..", "csv files", "listings_dec18.csv")
     reviews_file_path = os.path.join("..", "csv files", "reviews_dec18.csv")
-
+    calendar_data_file_path = os.path.join("..", 'csv files', "calendar_dec18.csv")
     data = pd.read_csv(data_file_path)  # Load your DataFrame from the listings CSV file
     reviews_data = pd.read_csv(reviews_file_path)  # Load your DataFrame from the reviews CSV file
+    calendardata = pd.read_csv(calendar_data_file_path)
 
     print(f"Data file path: {data_file_path}")
     print(f"Reviews file path: {reviews_file_path}")
 
     app = wx.App(False)
-    main_frame = listings(None, data, reviews_data)  # Pass both DataFrames as arguments
+    main_frame = listings(None, data, reviews_data, calendardata)  # Pass both DataFrames as arguments
     main_frame.Show()
     app.MainLoop()
 
