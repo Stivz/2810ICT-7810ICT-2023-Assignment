@@ -3,6 +3,8 @@ import wx.xrc
 import pandas as pd
 import tkinter as tk
 from tkinter import ttk
+import tkcalendar as tkcal
+from datetime import datetime
 import os
 import webbrowser
 class TopRatedFrame(wx.Frame):
@@ -135,7 +137,24 @@ class TopRatedFrame(wx.Frame):
 
         # Create a button to update the table
         update_button = ttk.Button(input_frame, text="Update Table", command=self.update_table)
-        update_button.grid(row=0, column=2, padx=10, pady=5)
+        update_button.grid(row=0, column=2, padx=(5, 60), pady=5)
+
+        self.start_date_var = tk.StringVar()
+        self.end_date_var = tk.StringVar()
+        # Create a Start Date Entry widget using DateEntry
+        start_date_var = tk.StringVar()
+        start_date_entry = tkcal.DateEntry(input_frame, textvariable=start_date_var, date_pattern='yyyy-mm-dd')
+        start_date_entry.grid(row=2, column=1, padx=(5, 50), pady=5)  # Adjust the padding as needed
+
+        # Create a label for "to" between start and end dates
+        to_label = ttk.Label(input_frame, text="to")
+        to_label.grid(row=2, column=1, padx=(5, 20), pady=5, sticky="e")  # Adjust the padding as needed
+
+        # Create an End Date Entry widget using DateEntry
+        end_date_var = tk.StringVar()
+        end_date_entry = tkcal.DateEntry(input_frame, textvariable=end_date_var, date_pattern='yyyy-mm-dd')
+        end_date_entry.grid(row=2, column=2, padx=(5, 50), pady=5)  # Adjust the padding as needed
+
 
         # Create a scrollbar
         scrollbar = ttk.Scrollbar(self.table_window)
@@ -196,12 +215,15 @@ class TopRatedFrame(wx.Frame):
             self.create_table()
 
     def update_table(self):
+
         selected_neighborhood = self.neighborhood_var.get()
         selected_property_type = self.property_type_var.get()
+        start_date = self.start_date_var.get()
+        end_date = self.end_date_var.get()
 
         if selected_neighborhood:
             if selected_property_type:
-                # Filter data based on both selected neighborhood and property type
+                # Filter data based on selected neighborhood and property type
                 filtered_data = self.data[
                     (self.data['neighbourhood_cleansed'] == selected_neighborhood) &
                     (self.data['property_type'] == selected_property_type)
@@ -209,24 +231,31 @@ class TopRatedFrame(wx.Frame):
             else:
                 # Filter data based on selected neighborhood only
                 filtered_data = self.data[self.data['neighbourhood_cleansed'] == selected_neighborhood]
-
-            # Sort the data by "Review Scores Rating" in descending order
-            filtered_data = filtered_data.sort_values(by="review_scores_rating", ascending=False)
-
-            # Clear the existing table
-            for item in self.tree.get_children():
-                self.tree.delete(item)
-
-            # Insert data into the table
-            for index, row in filtered_data.iterrows():
-                self.tree.insert("", "end", values=(
-                    row["name"], row["neighbourhood_cleansed"], row["property_type"], row["review_scores_rating"],
-                    row["listing_url"]))
-
         else:
-            # If no neighborhood is selected, clear the table
-            for item in self.tree.get_children():
-                self.tree.delete(item)
+            # No neighborhood selected, return an empty DataFrame
+            filtered_data = pd.DataFrame()
+
+        if start_date and end_date:
+            # If start_date and end_date are provided, filter by the date range
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date, '%Y-%m-%d')
+            filtered_data = filtered_data[filtered_data['id'].isin(self.calendardata[
+                                                                       (self.calendardata['date'] >= start_date) & (
+                                                                               self.calendardata['date'] <= end_date)][
+                                                                       'listing_id'])]
+
+        # Sort the data by "Review Scores Rating" in descending order
+        filtered_data = filtered_data.sort_values(by="review_scores_rating", ascending=False)
+
+        # Clear the existing table
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
+        # Insert data into the table
+        for index, row in filtered_data.iterrows():
+            self.tree.insert("", "end", values=(
+                row["name"], row["neighbourhood_cleansed"], row["property_type"], row["review_scores_rating"],
+                row["listing_url"]))
 
     def on_back_button_click(self, event):
         from Main_Menu import MainMenu  # Import the MainMenu class from Main_Menu.py
