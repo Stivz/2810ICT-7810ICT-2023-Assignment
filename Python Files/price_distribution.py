@@ -72,8 +72,8 @@ class PriceDistribution(wx.Frame):
         # Add the BoxSizer for static text to the main sizer (vertical)
         bSizer12.Add(bSizer15, 0, wx.EXPAND, 5)
 
-        # Create a BoxSizer for the dropdowns, text fields, and the "Generate Graph" button (horizontal)
-        bSizer_horizontal = wx.BoxSizer(wx.HORIZONTAL)
+        # Create a BoxSizer for the dropdowns, text fields, date pickers, and the "Generate Graph" button (vertical)
+        bSizer_vertical = wx.BoxSizer(wx.HORIZONTAL)
 
         # Create wx.Choice widgets for selecting suburbs
         suburb_choices = data['neighbourhood_cleansed'].unique()
@@ -93,26 +93,45 @@ class PriceDistribution(wx.Frame):
         self.set_default_text(self.min_price_text, "Enter Min Value")
         self.set_default_text(self.max_price_text, "Enter Max Value")
 
-        # Create a button to generate the graph
+        # Create a BoxSizer for the date pickers and "Generate Graph" button (horizontal)
+        bSizer_horizontal = wx.BoxSizer(wx.HORIZONTAL)
+
+        # Create date pickers and a "Generate Graph" button
+        self.start_date_picker = wx.adv.DatePickerCtrl(self, wx.ID_ANY, wx.DefaultDateTime, wx.DefaultPosition,
+                                                       wx.DefaultSize, style=wx.adv.DP_DEFAULT)
+        self.end_date_picker = wx.adv.DatePickerCtrl(self, wx.ID_ANY, wx.DefaultDateTime, wx.DefaultPosition,
+                                                     wx.DefaultSize, style=wx.adv.DP_DEFAULT)
+
+        # Create a valid wx.DateTime object for January 1, 2019
+        default_date = wx.DateTime.Now()
+        default_date.SetYear(2019)
+        default_date.SetMonth(1)
+        default_date.SetDay(1)
+
+        self.start_date_picker.SetValue(default_date)
+        self.end_date_picker.SetValue(default_date)
+
         self.generate_graph_button = wx.Button(self, wx.ID_ANY, u"Generate Graph", wx.DefaultPosition, wx.DefaultSize, 0)
         self.generate_graph_button.Bind(wx.EVT_BUTTON, self.on_generate_graph_button_click)
 
-        # Add the dropdowns, text fields, and the button to the horizontal BoxSizer
-        bSizer_horizontal.Add(self.suburb_choice1, 0, wx.ALIGN_CENTER | wx.ALL, 5)
-        bSizer_horizontal.Add(self.suburb_choice2, 0, wx.ALIGN_CENTER | wx.ALL, 5)
-        bSizer_horizontal.Add(self.min_price_text, 0, wx.ALIGN_CENTER | wx.ALL, 5)
-        bSizer_horizontal.Add(self.max_price_text, 0, wx.ALIGN_CENTER | wx.ALL, 5)
-        bSizer_horizontal.Add(self.generate_graph_button, 0, wx.ALIGN_CENTER | wx.ALL, 5)
+        # Add the suburb selector and min/max value inputs to the horizontal sizer
+        bSizer_horizontal.Add(self.suburb_choice1, 0, wx.ALL, 5)
+        bSizer_horizontal.Add(self.suburb_choice2, 0, wx.ALL, 5)
+        bSizer_horizontal.Add(self.min_price_text, 0, wx.ALL, 5)
+        bSizer_horizontal.Add(self.max_price_text, 0, wx.ALL, 5)
 
-        # Center the horizontal BoxSizer
-        bSizer_horizontal_centered = wx.BoxSizer(wx.HORIZONTAL)
-        bSizer_horizontal_centered.AddStretchSpacer(1)  # Add space to center-align the contents
-        bSizer_horizontal_centered.Add(bSizer_horizontal, 0, wx.ALIGN_CENTER)
-        bSizer_horizontal_centered.AddStretchSpacer(1)  # Add space to center-align the contents
+        # Add the date pickers and "Generate Graph" button to the horizontal sizer
+        bSizer_horizontal.Add(self.start_date_picker, 0, wx.ALL, 5)
+        bSizer_horizontal.Add(self.end_date_picker, 0, wx.ALL, 5)
+        bSizer_horizontal.Add(self.generate_graph_button, 0, wx.ALL, 5)
 
-        # Add the centered horizontal BoxSizer to the main sizer
-        bSizer12.Add(bSizer_horizontal_centered, 0, wx.EXPAND, 5)
+        # Add both the vertical and horizontal sizers to a parent sizer
+        bSizer_parent = wx.BoxSizer(wx.VERTICAL)
+        bSizer_parent.Add(bSizer_vertical, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 5)
+        bSizer_parent.Add(bSizer_horizontal, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 5)
 
+        # Add the parent sizer to the main sizer (bSizer_top in your code)
+        bSizer12.Add(bSizer_parent, 0, wx.EXPAND, 5)
         bSizer14 = wx.BoxSizer(wx.HORIZONTAL)
         bSizer14.Add((0, 0), 1, wx.EXPAND, 5)
 
@@ -125,8 +144,8 @@ class PriceDistribution(wx.Frame):
         bSizer14.Add(bSizer_panel, 1, wx.EXPAND, 5)
         bSizer14.Add((0, 0), 1, wx.EXPAND, 5)
 
-        bSizer_top.Add(bSizer12, 1, wx.EXPAND, 5)
-        bSizer_top.Add(bSizer14, 2, wx.EXPAND, 5)
+        bSizer_top.Add(bSizer12, 0, wx.EXPAND, 5)
+        bSizer_top.Add(bSizer14, 1, wx.EXPAND, 5)
 
         bSizer1.Add(bSizer_top, 1, wx.EXPAND, 5)
         self.SetSizer(bSizer1)
@@ -135,62 +154,88 @@ class PriceDistribution(wx.Frame):
 
         self.m_button5.Bind(wx.EVT_BUTTON, self.on_back_button_click)
 
-        self.data = data  # Store the DataFrame for later use
-        self.calendardata = calendardata
+        self.data = data  # Store the listings DataFrame for later use
+        self.calendardata = calendardata  # Store the calendar DataFrame for date information
         self.reviews_data = reviews_data
+
+        # Rename the "id" column in the listings DataFrame to "listing_id"
+        self.data.rename(columns={'id': 'listing_id'}, inplace=True)
+
         # Create a Figure and a canvas for displaying the plot
         self.figure = Figure(figsize=(7, 6))
         self.canvas = FigureCanvas(self.m_panel1, -1, self.figure)
 
-    def compare_neighborhoods(self, neighborhood1_input, neighborhood2_input, min_price_range, max_price_range):
-        # Clear the old graph
+    def compare_neighborhoods(self, neighborhood1_input, neighborhood2_input, min_price_range, max_price_range,
+                              start_date_str, end_date_str):
+
         self.figure.clf()
-        # Create a new subplot
         ax = self.figure.add_subplot(111)
 
-        # Filter rows based on the user input for the first neighborhood
-        neighborhood1_data = self.data[self.data['neighbourhood_cleansed'] == neighborhood1_input]
-        # Filter rows based on the user input for the second neighborhood
-        neighborhood2_data = self.data[self.data['neighbourhood_cleansed'] == neighborhood2_input]
+        date_range_label = f'Date Range: {start_date_str} to {end_date_str}'
+        ax.text(0.5, 1.05, date_range_label, horizontalalignment='center', verticalalignment='center',
+                transform=ax.transAxes, fontsize=12, color='black')
 
-        # Check if any listings were found for the specified neighborhoods
+        neighborhood1_data = self.data[self.data['neighbourhood_cleansed'] == neighborhood1_input].copy()
+        neighborhood2_data = self.data[self.data['neighbourhood_cleansed'] == neighborhood2_input].copy()
+
         if neighborhood1_data.empty or neighborhood2_data.empty:
             wx.MessageBox("No listings found for one or both of the specified neighborhoods.", "Error",
                           wx.OK | wx.ICON_ERROR)
             return
 
-        # Extract the 'price' columns for the selected neighborhoods
-        price1_data = neighborhood1_data['price'].str.replace('[$,]', '', regex=True).astype(float)
-        price2_data = neighborhood2_data['price'].str.replace('[$,]', '', regex=True).astype(float)
+        neighborhood1_data.loc[:, 'price'] = neighborhood1_data['price'].str.replace('[$,]', '', regex=True).astype(
+            float)
+        neighborhood2_data.loc[:, 'price'] = neighborhood2_data['price'].str.replace('[$,]', '', regex=True).astype(
+            float)
 
-        # Create histograms of the 'price' data for both neighborhoods
-        bin_step = 50  # Set the desired increment step size
-        bins = [x for x in range(int(min_price_range), int(max_price_range) + 1, bin_step)]  # Adjust the bin width as needed
+        start_date = pd.to_datetime(start_date_str)
+        end_date = pd.to_datetime(end_date_str)
 
-        ax.hist(price1_data, bins=bins, alpha=0.8, label=neighborhood1_input, edgecolor='k', color='blue', width=bin_step)
-        ax.hist(price2_data, bins=bins, alpha=0.5, label=neighborhood2_input, edgecolor='k', color='orange', width=bin_step)
+        if start_date > end_date:
+            wx.MessageBox("Start date should be earlier than end date.", "Date Error", wx.OK | wx.ICON_ERROR)
+            return
+
+        neighborhood1_data = neighborhood1_data[
+            (neighborhood1_data['listing_id'].isin(self.calendardata['listing_id'])) &
+            (pd.to_datetime(self.calendardata['date']) >= start_date) &
+            (pd.to_datetime(self.calendardata['date']) <= end_date)]
+        neighborhood2_data = neighborhood2_data[
+            (neighborhood2_data['listing_id'].isin(self.calendardata['listing_id'])) &
+            (pd.to_datetime(self.calendardata['date']) >= start_date) &
+            (pd.to_datetime(self.calendardata['date']) <= end_date)]
+
+        bin_step = 50
+        bins = [x for x in range(int(min_price_range), int(max_price_range) + 1, bin_step)]
+
+        ax.hist(neighborhood1_data['price'], bins=bins, alpha=0.8, label=neighborhood1_input, edgecolor='k',
+                color='blue',
+                width=bin_step)
+        ax.hist(neighborhood2_data['price'], bins=bins, alpha=0.5, label=neighborhood2_input, edgecolor='k',
+                color='orange',
+                width=bin_step)
 
         ax.set_xlabel('Price')
         ax.set_ylabel("Number of Airbnb's")
-        ax.set_title(f'Price Distribution between {neighborhood1_input} and {neighborhood2_input}')
-        ax.legend()
+        ax.set_title(f'Price Distribution between {neighborhood1_input} and {neighborhood2_input}', y=1.1)
 
-        # Draw the new plot on the canvas
+        if not neighborhood1_data.empty and not neighborhood2_data.empty:
+            ax.legend()
+
         self.canvas.draw()
 
     def on_generate_graph_button_click(self, event):
-        # Get user input for the first and second neighborhoods
+
         neighborhood1_input = self.suburb_choice1.GetStringSelection()
         neighborhood2_input = self.suburb_choice2.GetStringSelection()
         min_price_input = self.min_price_text.GetValue()
         max_price_input = self.max_price_text.GetValue()
 
-        # Validate the minimum and maximum price inputs
         try:
             min_price_range = float(min_price_input)
             max_price_range = float(max_price_input)
         except ValueError:
-            wx.MessageBox("Please enter valid numerical values for minimum and maximum prices.", "Error", wx.OK | wx.ICON_ERROR)
+            wx.MessageBox("Please enter valid numerical values for minimum and maximum prices.", "Error",
+                          wx.OK | wx.ICON_ERROR)
             return
 
         if not neighborhood1_input or not neighborhood2_input:
@@ -204,37 +249,44 @@ class PriceDistribution(wx.Frame):
             wx.MessageBox("Minimum price cannot be greater than maximum price.", "Error", wx.OK | wx.ICON_ERROR)
             return
 
-        self.compare_neighborhoods(neighborhood1_input, neighborhood2_input, min_price_range, max_price_range)
+        start_date = self.start_date_picker.GetValue()
+        end_date = self.end_date_picker.GetValue()
+
+        start_date_str = start_date.Format('%Y-%m-%d')
+        end_date_str = end_date.Format('%Y-%m-%d')
+
+        self.compare_neighborhoods(neighborhood1_input, neighborhood2_input, min_price_range, max_price_range,
+                                   start_date_str, end_date_str)
 
     def on_back_button_click(self, event):
-        from Main_Menu import MainMenu  # Import the MainMenu class from Main_Menu.py
+        from Main_Menu import MainMenu
         self.Close()
-        # Create and show a new instance of the MainMenu class
         app = wx.App(False)
         main_frame = MainMenu(None, self.data, self.reviews_data, self.calendardata)
         main_frame.Show()
         app.MainLoop()
 
     def set_default_text(self, text_ctrl, default_text):
-        # Set the default text and bind the focus event to clear it when focused
         text_ctrl.SetValue(default_text)
         text_ctrl.Bind(wx.EVT_SET_FOCUS, lambda event: self.on_text_ctrl_focus(event, text_ctrl, default_text))
         text_ctrl.Bind(wx.EVT_KILL_FOCUS, lambda event: self.on_text_ctrl_kill_focus(event, text_ctrl, default_text))
 
     def on_text_ctrl_focus(self, event, text_ctrl, default_text):
-        # Clear the default text when the text control gains focus
         if text_ctrl.GetValue() == default_text:
             text_ctrl.SetValue("")
 
     def on_text_ctrl_kill_focus(self, event, text_ctrl, default_text):
-        # Restore the default text if the text control is empty when it loses focus
         if text_ctrl.GetValue() == "":
             text_ctrl.SetValue(default_text)
 
 if __name__ == "__main__":
+    calendar_data_file_path = os.path.join("..", 'csv files', "calendar_dec18.csv")
     data_file_path = os.path.join("csv files", "listings_dec18.csv")
-    data = pd.read_csv(data_file_path)  # Load your DataFrame from a CSV file
+
+    calendardata = pd.read_csv(calendar_data_file_path)
+    data = pd.read_csv(data_file_path)
+
     app = wx.App(False)
-    main_frame = PriceDistribution(None, data)  # Pass the DataFrame as an argument
+    main_frame = PriceDistribution(None, data, None, calendardata)
     main_frame.Show()
     app.MainLoop()

@@ -110,6 +110,8 @@ class keyword(wx.Frame):
 
         start_date_str = start_date.Format('%Y-%m-%d')
         end_date_str = end_date.Format('%Y-%m-%d')
+        print("Start Date:", start_date_str)
+        print("End Date:", end_date_str)
 
         # Filter the DataFrame to get available properties within the selected date range
         available_properties = self.calendardata[
