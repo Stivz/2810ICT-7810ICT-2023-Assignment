@@ -154,11 +154,11 @@ class keyword(wx.Frame):
 
                     # Create a new row with combined data
                     combined_row = pd.Series({
-                        'listing_id': property_id,
-                        'name': listing_data['name'],
-                        'available': row['available'],
-                        'price': row['price'],
-                        'amenities': ', '.join(combined_amenities)  # Include the combined amenities information
+                        'Listing ID': property_id,
+                        'Listing Name': listing_data['name'],
+                        'Property Availability': row['available'],
+                        'Property Price': row['price'],
+                        'Property Amenities': ', '.join(combined_amenities)  # Include the combined amenities information
                     })
 
                     # Append the combined row to the unique_property_data list
@@ -179,7 +179,7 @@ class keyword(wx.Frame):
 
         # Create a data grid to display the merged data
         grid = wx.grid.Grid(available_properties_panel)
-        grid.CreateGrid(len(merged_data), len(merged_data.columns))  # Remove +1 for the amenities column
+        grid.CreateGrid(len(merged_data), len(merged_data.columns))
 
         # Set column labels
         for col, column_name in enumerate(merged_data.columns):
@@ -188,6 +188,9 @@ class keyword(wx.Frame):
         # Populate the grid with data
         for row, (_, row_data) in enumerate(merged_data.iterrows()):
             for col, value in enumerate(row_data):
+                if merged_data.columns[col] == 'Listing Name':
+                    # Limit "Listing Name" to a maximum of 30 characters
+                    value = value[:30]
                 grid.SetCellValue(row, col, str(value))
 
         # Auto-size columns to fit content
