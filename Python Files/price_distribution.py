@@ -102,6 +102,8 @@ class PriceDistribution(wx.Frame):
         self.end_date_picker = wx.adv.DatePickerCtrl(self, wx.ID_ANY, wx.DefaultDateTime, wx.DefaultPosition,
                                                      wx.DefaultSize, style=wx.adv.DP_DEFAULT)
 
+
+
         # Create a valid wx.DateTime object for January 1, 2019
         default_date = wx.DateTime.Now()
         default_date.SetYear(2019)
