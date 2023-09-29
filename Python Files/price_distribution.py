@@ -107,7 +107,7 @@ class PriceDistribution(wx.Frame):
         # Create a valid wx.DateTime object for January 1, 2019
         default_date = wx.DateTime.Now()
         default_date.SetYear(2019)
-        default_date.SetMonth(1)
+        default_date.SetMonth(2)
         default_date.SetDay(1)
 
         self.start_date_picker.SetValue(default_date)
