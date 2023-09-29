@@ -13,11 +13,6 @@ class TopRatedFrame(wx.Frame):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString, pos=wx.DefaultPosition,
                           size=wx.Size(1980, 1080), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 
-        # Create the date pickers and set initial values to valid default dates
-        self.start_date_picker = wx.adv.DatePickerCtrl(self, wx.ID_ANY, wx.DefaultDateTime, wx.DefaultPosition,
-                                                       wx.DefaultSize, style=wx.adv.DP_DEFAULT)
-        self.end_date_picker = wx.adv.DatePickerCtrl(self, wx.ID_ANY, wx.DefaultDateTime, wx.DefaultPosition,
-                                                     wx.DefaultSize, style=wx.adv.DP_DEFAULT)
 
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
 
@@ -151,18 +146,19 @@ class TopRatedFrame(wx.Frame):
 
 
         # Create a Start Date Entry widget using DateEntry
-        self.start_date_str = tk.StringVar()
+        self.start_date_var = tk.StringVar()
 
-        start_date_entry = tkcal.DateEntry(input_frame, textvariable=self.start_date_str, date_pattern='yyyy-mm-dd')
+
+        start_date_entry = tkcal.DateEntry(input_frame, textvariable=self.start_date_var, date_pattern='yyyy-mm-dd')
         start_date_entry.grid(row=2, column=1, padx=(5, 50), pady=5)  # Adjust the padding as needed
 
         # Create a label for "to" between start and end dates
         to_label = ttk.Label(input_frame, text="to")
         to_label.grid(row=2, column=1, padx=(5, 20), pady=5, sticky="e")  # Adjust the padding as needed
 
-        self.end_date_str = tk.StringVar()
+        self.end_date_var = tk.StringVar()
         # Create an End Date Entry widget using DateEntry
-        end_date_entry = tkcal.DateEntry(input_frame, textvariable=self.end_date_str, date_pattern='yyyy-mm-dd')
+        end_date_entry = tkcal.DateEntry(input_frame, textvariable=self.end_date_var, date_pattern='yyyy-mm-dd')
         end_date_entry.grid(row=2, column=2, padx=(5, 50), pady=5)
 
         # Create a "Confirm" button for date range
@@ -201,8 +197,8 @@ class TopRatedFrame(wx.Frame):
         self.tree.heading("#6", text="Listing URL")
 
         self.tree.column("#1", width=300)
-        self.tree.column("#5", width=100)  # Adjust the width for the date column
-        self.tree.column("#6", width=270)
+        self.tree.column("#5", width=68)  # Adjust the width for the date column
+        self.tree.column("#6", width=240)
 
         # Pack the Treeview widget
         self.tree.pack()
@@ -230,50 +226,19 @@ class TopRatedFrame(wx.Frame):
             # Start the tkinter table creation within the panel
             self.create_table()
 
-    # def apply_date_range_filter(self):
-    #     start_date_str = self.start_date_str.get()
-    #     end_date_str = self.end_date_str.get()
-    #
-    #     print("Start Date:", start_date_str)
-    #     print("End Date:", end_date_str)
-    #
-    #     if start_date_str and end_date_str:
-    #         # Convert the formatted strings to datetime objects
-    #         start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
-    #         end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
-    #
-    #         # Filter both dataframes based on the date range
-    #         # Convert 'date' column in calendardata to datetime objects for comparison
-    #         self.calendardata['date'] = pd.to_datetime(self.calendardata['date'])
-    #         filtered_listing_ids = self.calendardata[
-    #             (self.calendardata['date'] >= start_date) &
-    #             (self.calendardata['date'] <= end_date)
-    #             ]['listing_id']
-    #
-    #         self.filtered_data = self.data[
-    #             self.data['id'].isin(filtered_listing_ids)
-    #         ]
-    #
-    #         self.filtered_reviews_data = self.reviews_data[
-    #             self.reviews_data['listing_id'].isin(self.filtered_data['id'])
-    #         ]
-    #
-    #
-    #         # After filtering, update the table to display the filtered results
-    #         self.update_table()
 
     def update_table(self):
         selected_neighborhood = self.neighborhood_var.get()
         selected_property_type = self.property_type_var.get()
 
-        start_date_str = self.start_date_str.get()
-        end_date_str = self.end_date_str.get()
+        start_date = self.start_date_var.get()
+        end_date = self.end_date_var.get()
         print("Updating table...")
-        print("Start Date:", start_date_str)
-        print("End Date:", end_date_str)
+        print("Start Date:", start_date)
+        print("End Date:", end_date)
 
-
-
+        for item in self.tree.get_children():
+            self.tree.delete(item)
 
         if selected_neighborhood:
             if selected_property_type:
@@ -286,28 +251,30 @@ class TopRatedFrame(wx.Frame):
         else:
             filtered_data = pd.DataFrame()
 
-        # Sort the data by "review_scores_rating" in descending order
+        # Merge 'calendar_dec18.csv' data into 'filtered_data'
+        filtered_data = pd.merge(filtered_data, self.calendardata[['listing_id', 'date']], left_on='id',
+                                 right_on='listing_id', how='left')
+
+        # Merge 'reviews_dec18.csv' data into 'filtered_data'
+        filtered_data = pd.merge(filtered_data, self.reviews_data[['id', 'reviewer_name', 'comments']], left_on='id',
+                                 right_on='id', how='left')
         filtered_data = filtered_data.sort_values(by="review_scores_rating", ascending=False)
 
-        for item in self.tree.get_children():
-            try:
-                self.tree.delete(item)
-            except:
-                pass  # Ignore any errors when deleting items
+        # Convert date strings to datetime objects
+        filtered_data['date'] = pd.to_datetime(filtered_data['date'])
 
-            # Check if filtered_data is not None
-            if filtered_data is not None:
-                # Clear the current table
-                for item in self.tree.get_children():
-                    self.tree.delete(item)
+        filtered_data = filtered_data[
+            (filtered_data['date'] >= pd.to_datetime(start_date)) &
+            (filtered_data['date'] <= pd.to_datetime(end_date))
+            ]
+
+
 
         for index, row in filtered_data.iterrows():
-            listing_id = row["id"]
-            listing_date = self.calendardata[self.calendardata['listing_id'] == listing_id]['date'].values[0]
 
             self.tree.insert("", "end", values=(
                 row["name"], row["neighbourhood_cleansed"], row["property_type"], row["review_scores_rating"],
-                listing_date, row["listing_url"]))
+                row['date'], row["listing_url"]))
 
 
     def on_back_button_click(self, event):
