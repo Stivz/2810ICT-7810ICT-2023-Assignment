@@ -115,11 +115,11 @@ class MainMenu(wx.Frame):
 
     def on_price_distribution_button_click(self, event):
         self.price_distribution_button_clicked = True
-        # Create and show the PriceDistributionFrame
+        self.Close()
         price_distribution_frame = PriceDistribution(None, self.data, self.reviews_data, self.calendardata)
         price_distribution_frame.Show()
-        # Close the MainMenu frame
-        self.Close()
+
+
 
     def on_listings_button_click(self, event):
         self.listings_clicked = True
