@@ -15,11 +15,6 @@ class listings(wx.Frame):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString, pos=wx.DefaultPosition,
                           size=wx.Size(1980, 1080), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 
-        # Create a start date picker
-        self.start_date_picker = wx.adv.DatePickerCtrl(self, wx.ID_ANY, wx.DefaultDateTime, wx.DefaultPosition,
-                                                       wx.DefaultSize, style=wx.adv.DP_DEFAULT)
-        self.end_date_picker = wx.adv.DatePickerCtrl(self, wx.ID_ANY, wx.DefaultDateTime, wx.DefaultPosition,
-                                                     wx.DefaultSize, style=wx.adv.DP_DEFAULT)
 
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
         bSizer1 = wx.BoxSizer(wx.VERTICAL)
@@ -264,6 +259,7 @@ class listings(wx.Frame):
         # Merge 'filtered_data' with 'self.calendardata' based on 'id' and 'listing_id'
         filtered_data = pd.merge(filtered_data, self.calendardata[['listing_id', 'date']], left_on='id',
                                  right_on='listing_id', how='left')
+
 
         # Convert date strings to datetime objects
         filtered_data['date'] = pd.to_datetime(filtered_data['date'])
