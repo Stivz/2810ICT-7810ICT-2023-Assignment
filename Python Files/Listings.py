@@ -167,7 +167,7 @@ class listings(wx.Frame):
         # Create a Treeview widget (table)
         self.tree = ttk.Treeview(self.table_window,
                                  columns=(
-                                 "Listing ID", "Name", "Neighbourhood", "Property Type", "Price", "Date"),
+                                 "Listing ID", "Name", "Neighbourhood", "Property Type", "Price", "Date", "Listing URL"),
                                  yscrollcommand=scrollbar.set, show="headings")
         scrollbar.config(command=self.tree.yview)
 
@@ -178,7 +178,7 @@ class listings(wx.Frame):
         self.tree.heading("#4", text="Property Type")
         self.tree.heading("#5", text="Price")
         self.tree.heading("#6", text="Date")
-        # self.tree.heading("#7", text="Listing URL")
+        self.tree.heading("#7", text="Listing URL")
 
         self.tree.column("#1", width=100)
         self.tree.column("#2", width=300)
@@ -186,7 +186,7 @@ class listings(wx.Frame):
         self.tree.column("#4", width=150)
         self.tree.column("#5", width=150)
         self.tree.column("#6", width=68)
-        # self.tree.column("#7", width=240)
+        self.tree.column("#7", width=235)
 
         # Create a new Treeview widget for displaying matching comments
         self.cleanliness_table = ttk.Treeview(self.table_window, columns=("Listing ID", "Reviewer Name", "Comment"),
@@ -197,9 +197,9 @@ class listings(wx.Frame):
         self.cleanliness_table.heading("#2", text="Reviewer Name")
         self.cleanliness_table.heading("#3", text="Comment")
 
-        self.cleanliness_table.column("#1", width=100)
-        self.cleanliness_table.column("#2", width=100)
-        self.cleanliness_table.column("#3", width=720)
+        self.cleanliness_table.column("#1", width=130)
+        self.cleanliness_table.column("#2", width=132)
+        self.cleanliness_table.column("#3", width=890)
 
         # Pack the Treeview widget
         self.tree.pack()
@@ -347,7 +347,7 @@ class listings(wx.Frame):
                     row["property_type"],
                     row["price"],
                     row["date"],
-                    # row["listing_url"],
+                    row["listing_url"],
                 ))
 
     def on_back_button_click(self, event):
