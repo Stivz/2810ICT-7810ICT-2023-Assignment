@@ -1,4 +1,5 @@
 import wx
+import wx.adv
 import wx.xrc
 import pandas as pd
 import tkinter as tk
@@ -6,13 +7,19 @@ from tkinter import ttk
 import webbrowser
 import tkcalendar as tkcal
 import os
-
+from datetime import datetime
+from tkcalendar import DateEntry
 class listings(wx.Frame):
 
     def __init__(self, parent, data, reviews_data, calendardata):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString, pos=wx.DefaultPosition,
                           size=wx.Size(1980, 1080), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 
+        # Create a start date picker
+        self.start_date_picker = wx.adv.DatePickerCtrl(self, wx.ID_ANY, wx.DefaultDateTime, wx.DefaultPosition,
+                                                       wx.DefaultSize, style=wx.adv.DP_DEFAULT)
+        self.end_date_picker = wx.adv.DatePickerCtrl(self, wx.ID_ANY, wx.DefaultDateTime, wx.DefaultPosition,
+                                                     wx.DefaultSize, style=wx.adv.DP_DEFAULT)
 
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
         bSizer1 = wx.BoxSizer(wx.VERTICAL)
@@ -97,14 +104,14 @@ class listings(wx.Frame):
         self.table_window = tk.Tk()
         self.table_window.title("Listings Table")
 
-        self.table_window.geometry("1300x600+340+345")  # Adjust the size and coordinates as needed
+        self.table_window.geometry("1300x630+340+345")  # Adjust the size and coordinates as needed
 
         # Create a frame for user input
         input_frame = ttk.Frame(self.table_window)
         input_frame.pack(pady=10)
 
         # Create a label and a dropdown for selecting a Neighborhood
-        neighborhood_label = ttk.Label(input_frame, text="Select a Neighborhood:")
+        neighborhood_label = ttk.Label(input_frame, text="Select a Neighbourhood:")
         neighborhood_label.grid(row=0, column=0, padx=10, pady=5)
 
         # Remove quotation marks from neighborhood names
@@ -144,7 +151,7 @@ class listings(wx.Frame):
         end_date_entry.grid(row=2, column=2, padx=(5, 50), pady=5)
 
         # Create a "Cleanliness Analyzer" button
-        cleanliness_analyzer_button = ttk.Button(input_frame, text="Cleanliness Analyzer",
+        cleanliness_analyzer_button = ttk.Button(input_frame, text="Cleanliness Analyser",
                                                  command=self.cleanliness_analyzer)
         cleanliness_analyzer_button.grid(row=3, column=1, pady=10)
 
@@ -160,24 +167,26 @@ class listings(wx.Frame):
         # Create a Treeview widget (table)
         self.tree = ttk.Treeview(self.table_window,
                                  columns=(
-                                 "Listing ID", "Name", "Neighborhood", "Property Type", "Price", "Listing URL"),
+                                 "Listing ID", "Name", "Neighbourhood", "Property Type", "Price", "Date"),
                                  yscrollcommand=scrollbar.set, show="headings")
         scrollbar.config(command=self.tree.yview)
 
         # Set column headings for the modified table
         self.tree.heading("#1", text="Listing ID")
         self.tree.heading("#2", text="Name")
-        self.tree.heading("#3", text="Neighborhood")
+        self.tree.heading("#3", text="Neighbourhood")
         self.tree.heading("#4", text="Property Type")
         self.tree.heading("#5", text="Price")
-        self.tree.heading("#6", text="Listing URL")
+        self.tree.heading("#6", text="Date")
+        # self.tree.heading("#7", text="Listing URL")
 
         self.tree.column("#1", width=100)
         self.tree.column("#2", width=300)
         self.tree.column("#3", width=150)
         self.tree.column("#4", width=150)
         self.tree.column("#5", width=150)
-        self.tree.column("#6", width=240)
+        self.tree.column("#6", width=68)
+        # self.tree.column("#7", width=240)
 
         # Create a new Treeview widget for displaying matching comments
         self.cleanliness_table = ttk.Treeview(self.table_window, columns=("Listing ID", "Reviewer Name", "Comment"),
@@ -190,7 +199,7 @@ class listings(wx.Frame):
 
         self.cleanliness_table.column("#1", width=100)
         self.cleanliness_table.column("#2", width=100)
-        self.cleanliness_table.column("#3", width=890)
+        self.cleanliness_table.column("#3", width=720)
 
         # Pack the Treeview widget
         self.tree.pack()
@@ -204,6 +213,8 @@ class listings(wx.Frame):
     def cleanliness_analyzer(self):
         # Implement your cleanliness analysis logic here
 
+        start_date = self.start_date_var.get()
+        end_date = self.end_date_var.get()
         selected_neighborhood = self.neighborhood_var.get()
         selected_property_type = self.property_type_var.get()
 
@@ -211,7 +222,7 @@ class listings(wx.Frame):
         cleanliness_keywords = ["clean", "tidy", "spotless", "neat", "immaculate", "hygienic"]
 
         # Get the filtered data
-        filtered_data = self.get_filtered_data(selected_neighborhood, selected_property_type)
+        filtered_data = self.get_filtered_data(selected_neighborhood, selected_property_type, start_date, end_date)
 
         # Clear any previous data from the cleanliness table
         self.cleanliness_table.delete(*self.cleanliness_table.get_children())
@@ -235,8 +246,7 @@ class listings(wx.Frame):
     def show_cleanliness_table(self):
         self.cleanliness_table.pack()
 
-
-    def get_filtered_data(self, selected_neighborhood, selected_property_type):
+    def get_filtered_data(self, selected_neighborhood, selected_property_type, start_date, end_date):
         if selected_neighborhood:
             if selected_property_type:
                 # Filter data based on both selected neighborhood and property type
@@ -250,6 +260,19 @@ class listings(wx.Frame):
         else:
             # No neighborhood selected, return an empty DataFrame
             filtered_data = pd.DataFrame()
+
+        # Merge 'filtered_data' with 'self.calendardata' based on 'id' and 'listing_id'
+        filtered_data = pd.merge(filtered_data, self.calendardata[['listing_id', 'date']], left_on='id',
+                                 right_on='listing_id', how='left')
+
+        # Convert date strings to datetime objects
+        filtered_data['date'] = pd.to_datetime(filtered_data['date'])
+
+        # Filter by date range
+        filtered_data = filtered_data[
+            (filtered_data['date'] >= start_date) &
+            (filtered_data['date'] <= end_date)
+            ]
 
         return filtered_data
 
@@ -278,6 +301,13 @@ class listings(wx.Frame):
         start_date = self.start_date_var.get()
         end_date = self.end_date_var.get()
 
+        print("Start Date:", start_date)
+        print("End Date:", end_date)
+
+        # Clear the existing items in the table
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
         if selected_neighborhood:
             if selected_property_type:
                 # Filter data based on both selected neighborhood and property type
@@ -289,54 +319,36 @@ class listings(wx.Frame):
                 # Filter data based on selected neighborhood only
                 filtered_data = self.data[self.data['neighbourhood_cleansed'] == selected_neighborhood]
 
-            # If start_date and end_date are provided, filter by the date range
-            if start_date and end_date:
-                filtered_data = filtered_data[filtered_data['id'].isin(self.calendardata[
-                                                                           (self.calendardata['date'] >= start_date) & (
-                                                                                       self.calendardata[
-                                                                                           'date'] <= end_date)][
-                                                                           'listing_id'])]
+            # Merge 'filtered_data' with 'self.calendardata' based on 'id' and 'listing_id'
+            filtered_data = pd.merge(filtered_data, self.calendardata[['listing_id', 'date']], left_on='id',
+                                     right_on='listing_id', how='left')
+
+            # Convert date strings to datetime objects
+            filtered_data['date'] = pd.to_datetime(filtered_data['date'])
+
+            # Filter by date range
+            filtered_data = filtered_data[
+                (filtered_data['date'] >= pd.to_datetime(start_date)) &
+                (filtered_data['date'] <= pd.to_datetime(end_date))
+                ]
 
             # Sort the data by "Price" in ascending order
             filtered_data = filtered_data.sort_values(by="price")
 
-            # Clear the existing table
-            for item in self.tree.get_children():
-                self.tree.delete(item)
+            # Remove duplicates based on 'listing_id'
+            filtered_data = filtered_data.drop_duplicates(subset='listing_id')
 
             # Insert data into the table
             for index, row in filtered_data.iterrows():
                 self.tree.insert("", "end", values=(
                     row["id"],
-                    row["name"], row["neighbourhood_cleansed"], row["property_type"], row["price"], row["listing_url"]))
-
-        else:
-            # If no neighborhood is selected, clear the table
-            for item in self.tree.get_children():
-                self.tree.delete(item)
-
-    def wrap_text(text, width):
-        """
-        Split text into multiple lines, each with a maximum width.
-        """
-        if len(text) <= width:
-            return [text]
-        else:
-            words = text.split()
-            lines = []
-            current_line = ""
-
-            for word in words:
-                if len(current_line) + len(word) + 1 <= width:
-                    current_line += word + " "
-                else:
-                    lines.append(current_line)
-                    current_line = word + " "
-
-            if current_line:
-                lines.append(current_line)
-
-            return lines
+                    row["name"],
+                    row["neighbourhood_cleansed"],
+                    row["property_type"],
+                    row["price"],
+                    row["date"],
+                    # row["listing_url"],
+                ))
 
     def on_back_button_click(self, event):
         from Main_Menu import MainMenu  # Import the MainMenu class from Main_Menu.py
