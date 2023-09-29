@@ -230,37 +230,38 @@ class TopRatedFrame(wx.Frame):
             # Start the tkinter table creation within the panel
             self.create_table()
 
-    # def apply_date_range_filter(self):
-    #     start_date_str = self.start_date_str.get()
-    #     end_date_str = self.end_date_str.get()
-    #
-    #     print("Start Date:", start_date_str)
-    #     print("End Date:", end_date_str)
-    #
-    #     if start_date_str and end_date_str:
-    #         # Convert the formatted strings to datetime objects
-    #         start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
-    #         end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
-    #
-    #         # Filter both dataframes based on the date range
-    #         # Convert 'date' column in calendardata to datetime objects for comparison
-    #         self.calendardata['date'] = pd.to_datetime(self.calendardata['date'])
-    #         filtered_listing_ids = self.calendardata[
-    #             (self.calendardata['date'] >= start_date) &
-    #             (self.calendardata['date'] <= end_date)
-    #             ]['listing_id']
-    #
-    #         self.filtered_data = self.data[
-    #             self.data['id'].isin(filtered_listing_ids)
-    #         ]
-    #
-    #         self.filtered_reviews_data = self.reviews_data[
-    #             self.reviews_data['listing_id'].isin(self.filtered_data['id'])
-    #         ]
-    #
-    #
-    #         # After filtering, update the table to display the filtered results
-    #         self.update_table()
+    def get_filtered_data(self, selected_neighborhood, selected_property_type, start_date, end_date):
+        if selected_neighborhood:
+            if selected_property_type:
+                # Filter data based on both selected neighborhood and property type
+                filtered_data = self.data[
+                    (self.data['neighbourhood_cleansed'] == selected_neighborhood) &
+                    (self.data['property_type'] == selected_property_type)
+                    ]
+            else:
+                # Filter data based on selected neighborhood only
+                filtered_data = self.data[self.data['neighbourhood_cleansed'] == selected_neighborhood]
+        else:
+            # No neighborhood selected, return an empty DataFrame
+            filtered_data = pd.DataFrame()
+
+        # Merge 'filtered_data' with 'self.calendardata' based on 'id' and 'listing_id'
+        filtered_data = pd.merge(filtered_data, self.calendardata[['listing_id', 'date']], left_on='id',
+                                 right_on='listing_id', how='left')
+
+        # Convert date strings to datetime objects
+        filtered_data['date'] = pd.to_datetime(filtered_data['date'])
+
+        # Filter by date range
+        filtered_data = filtered_data[
+            (filtered_data['date'] >= start_date) &
+            (filtered_data['date'] <= end_date)
+            ]
+
+        # Merge 'filtered_data' with 'self.reviews_data' based on 'id' and 'listing_id'
+        filtered_data = pd.merge(filtered_data, self.reviews_data, left_on='id', right_on='listing_id', how='left')
+
+        return filtered_data
 
     def update_table(self):
         selected_neighborhood = self.neighborhood_var.get()
