@@ -104,14 +104,14 @@ class listings(wx.Frame):
         self.table_window = tk.Tk()
         self.table_window.title("Listings Table")
 
-        self.table_window.geometry("1300x600+340+345")  # Adjust the size and coordinates as needed
+        self.table_window.geometry("1300x630+340+345")  # Adjust the size and coordinates as needed
 
         # Create a frame for user input
         input_frame = ttk.Frame(self.table_window)
         input_frame.pack(pady=10)
 
         # Create a label and a dropdown for selecting a Neighborhood
-        neighborhood_label = ttk.Label(input_frame, text="Select a Neighborhood:")
+        neighborhood_label = ttk.Label(input_frame, text="Select a Neighbourhood:")
         neighborhood_label.grid(row=0, column=0, padx=10, pady=5)
 
         # Remove quotation marks from neighborhood names
@@ -151,7 +151,7 @@ class listings(wx.Frame):
         end_date_entry.grid(row=2, column=2, padx=(5, 50), pady=5)
 
         # Create a "Cleanliness Analyzer" button
-        cleanliness_analyzer_button = ttk.Button(input_frame, text="Cleanliness Analyzer",
+        cleanliness_analyzer_button = ttk.Button(input_frame, text="Cleanliness Analyser",
                                                  command=self.cleanliness_analyzer)
         cleanliness_analyzer_button.grid(row=3, column=1, pady=10)
 
@@ -167,14 +167,14 @@ class listings(wx.Frame):
         # Create a Treeview widget (table)
         self.tree = ttk.Treeview(self.table_window,
                                  columns=(
-                                 "Listing ID", "Name", "Neighborhood", "Property Type", "Price", "Date"),
+                                 "Listing ID", "Name", "Neighbourhood", "Property Type", "Price", "Date"),
                                  yscrollcommand=scrollbar.set, show="headings")
         scrollbar.config(command=self.tree.yview)
 
         # Set column headings for the modified table
         self.tree.heading("#1", text="Listing ID")
         self.tree.heading("#2", text="Name")
-        self.tree.heading("#3", text="Neighborhood")
+        self.tree.heading("#3", text="Neighbourhood")
         self.tree.heading("#4", text="Property Type")
         self.tree.heading("#5", text="Price")
         self.tree.heading("#6", text="Date")
@@ -199,7 +199,7 @@ class listings(wx.Frame):
 
         self.cleanliness_table.column("#1", width=100)
         self.cleanliness_table.column("#2", width=100)
-        self.cleanliness_table.column("#3", width=890)
+        self.cleanliness_table.column("#3", width=720)
 
         # Pack the Treeview widget
         self.tree.pack()
