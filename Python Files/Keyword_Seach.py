@@ -6,7 +6,7 @@ import wx.grid
 import random
 
 
-class keyword(wx.Frame):
+class keyword (wx.Frame):
     def __init__(self, parent, data, reviews_data, calendardata):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString, pos=wx.DefaultPosition,
                           size=wx.Size(1980, 1080), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
@@ -15,6 +15,7 @@ class keyword(wx.Frame):
         self.calendardata = calendardata  # Store the DataFrame for later use
         self.data = data
         self.reviews_data = reviews_data
+
 
         bSizer1 = wx.BoxSizer(wx.VERTICAL)
         bSizer12 = wx.BoxSizer(wx.VERTICAL)
@@ -42,7 +43,7 @@ class keyword(wx.Frame):
         gSizer51.Add(self.m_button5, 0, wx.ALIGN_CENTER | wx.ALIGN_CENTER_HORIZONTAL | wx.RIGHT, 5)
 
         bSizer18.Add(gSizer51, 1, 0, 5)
-        bSizer12.Add(bSizer18, 1, wx.ALIGN_CENTER_HORIZONTAL | wx.EXPAND, 5)
+        bSizer12.Add(bSizer18, 1, wx.ALIGN_CENTER_HORIZONTAL | wx.TOP, 5)
         bSizer15 = wx.BoxSizer(wx.VERTICAL)
 
         self.m_staticText7 = wx.StaticText(self, wx.ID_ANY, u"Sydney Stayz", wx.DefaultPosition, wx.DefaultSize, 0)
@@ -51,12 +52,15 @@ class keyword(wx.Frame):
             wx.Font(30, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, wx.EmptyString))
         bSizer15.Add(self.m_staticText7, 0, wx.ALIGN_CENTER | wx.ALL, 5)
 
-        self.m_staticText2 = wx.StaticText(self, wx.ID_ANY, u"Keyword search for available properties", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.m_staticText2 = wx.StaticText(self, wx.ID_ANY, u"Keyword search for available properties",
+                                           wx.DefaultPosition, wx.DefaultSize, 0)
         self.m_staticText2.Wrap(-1)
         self.m_staticText2.SetFont(
             wx.Font(20, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, wx.EmptyString))
         bSizer15.Add(self.m_staticText2, 0, wx.ALIGN_CENTER, 5)
-        bSizer12.Add(bSizer15, 1, wx.ALIGN_CENTER_HORIZONTAL | wx.EXPAND, 5)
+
+        bSizer12.Add(bSizer15, 0, wx.ALIGN_CENTER, 5)
+
         bSizer19 = wx.BoxSizer(wx.HORIZONTAL)
 
         # Create a panel for the date pickers, search box, and confirm button
