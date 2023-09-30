@@ -91,6 +91,7 @@ class keyword (wx.Frame):
 
         bSizer12.Add(bSizer19, 0, wx.ALIGN_CENTER | wx.ALL, 5)
 
+
         bSizer1.Add(bSizer12, 0, wx.EXPAND, 5)
 
         # Additional space at the bottom
