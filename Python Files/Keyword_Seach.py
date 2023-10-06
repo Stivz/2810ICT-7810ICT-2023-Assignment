@@ -6,7 +6,7 @@ import wx.grid
 import random
 
 
-class keyword(wx.Frame):
+class keyword (wx.Frame):
     def __init__(self, parent, data, reviews_data, calendardata):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString, pos=wx.DefaultPosition,
                           size=wx.Size(1980, 1080), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
@@ -15,6 +15,7 @@ class keyword(wx.Frame):
         self.calendardata = calendardata  # Store the DataFrame for later use
         self.data = data
         self.reviews_data = reviews_data
+
 
         bSizer1 = wx.BoxSizer(wx.VERTICAL)
         bSizer12 = wx.BoxSizer(wx.VERTICAL)
@@ -42,7 +43,7 @@ class keyword(wx.Frame):
         gSizer51.Add(self.m_button5, 0, wx.ALIGN_CENTER | wx.ALIGN_CENTER_HORIZONTAL | wx.RIGHT, 5)
 
         bSizer18.Add(gSizer51, 1, 0, 5)
-        bSizer12.Add(bSizer18, 1, wx.ALIGN_CENTER_HORIZONTAL | wx.EXPAND, 5)
+        bSizer12.Add(bSizer18, 1, wx.ALIGN_CENTER_HORIZONTAL | wx.TOP, 5)
         bSizer15 = wx.BoxSizer(wx.VERTICAL)
 
         self.m_staticText7 = wx.StaticText(self, wx.ID_ANY, u"Sydney Stayz", wx.DefaultPosition, wx.DefaultSize, 0)
@@ -51,12 +52,15 @@ class keyword(wx.Frame):
             wx.Font(30, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, wx.EmptyString))
         bSizer15.Add(self.m_staticText7, 0, wx.ALIGN_CENTER | wx.ALL, 5)
 
-        self.m_staticText2 = wx.StaticText(self, wx.ID_ANY, u"Keyword search for available properties", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.m_staticText2 = wx.StaticText(self, wx.ID_ANY, u"Keyword search for available properties",
+                                           wx.DefaultPosition, wx.DefaultSize, 0)
         self.m_staticText2.Wrap(-1)
         self.m_staticText2.SetFont(
             wx.Font(20, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, wx.EmptyString))
         bSizer15.Add(self.m_staticText2, 0, wx.ALIGN_CENTER, 5)
-        bSizer12.Add(bSizer15, 1, wx.ALIGN_CENTER_HORIZONTAL | wx.EXPAND, 5)
+
+        bSizer12.Add(bSizer15, 0, wx.ALIGN_CENTER, 5)
+
         bSizer19 = wx.BoxSizer(wx.HORIZONTAL)
 
         # Create a panel for the date pickers, search box, and confirm button
@@ -86,6 +90,7 @@ class keyword(wx.Frame):
         bSizer19.Add(panel, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
         bSizer12.Add(bSizer19, 0, wx.ALIGN_CENTER | wx.ALL, 5)
+
 
         bSizer1.Add(bSizer12, 0, wx.EXPAND, 5)
 
@@ -154,11 +159,11 @@ class keyword(wx.Frame):
 
                     # Create a new row with combined data
                     combined_row = pd.Series({
-                        'listing_id': property_id,
-                        'name': listing_data['name'],
-                        'available': row['available'],
-                        'price': row['price'],
-                        'amenities': ', '.join(combined_amenities)  # Include the combined amenities information
+                        'Listing ID': property_id,
+                        'Listing Name': listing_data['name'],
+                        'Property Availability': row['available'],
+                        'Property Price': row['price'],
+                        'Property Amenities': ', '.join(combined_amenities)  # Include the combined amenities information
                     })
 
                     # Append the combined row to the unique_property_data list
@@ -179,7 +184,7 @@ class keyword(wx.Frame):
 
         # Create a data grid to display the merged data
         grid = wx.grid.Grid(available_properties_panel)
-        grid.CreateGrid(len(merged_data), len(merged_data.columns))  # Remove +1 for the amenities column
+        grid.CreateGrid(len(merged_data), len(merged_data.columns))
 
         # Set column labels
         for col, column_name in enumerate(merged_data.columns):
@@ -188,6 +193,9 @@ class keyword(wx.Frame):
         # Populate the grid with data
         for row, (_, row_data) in enumerate(merged_data.iterrows()):
             for col, value in enumerate(row_data):
+                if merged_data.columns[col] == 'Listing Name':
+                    # Limit "Listing Name" to a maximum of 30 characters
+                    value = value[:30]
                 grid.SetCellValue(row, col, str(value))
 
         # Auto-size columns to fit content

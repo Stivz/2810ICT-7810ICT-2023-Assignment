@@ -7,6 +7,7 @@ from tkinter import ttk
 import webbrowser
 import tkcalendar as tkcal
 import os
+
 from datetime import datetime
 from tkcalendar import DateEntry
 class listings(wx.Frame):
@@ -80,7 +81,8 @@ class listings(wx.Frame):
         self.Layout()
         self.Centre(wx.BOTH)
         self.m_button5.Bind(wx.EVT_BUTTON, self.on_back_button_click)
-
+        self.error_label = wx.StaticText(self, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.error_label.SetForegroundColour(wx.Colour(255, 0, 0))  # Set text color to red
 
         # Create a wx.Panel to contain the tkinter table
         self.table_frame = wx.Panel(self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
@@ -296,6 +298,19 @@ class listings(wx.Frame):
         selected_property_type = self.property_type_var.get()
         start_date = self.start_date_var.get()
         end_date = self.end_date_var.get()
+
+        # Check if the start date is later than the end date
+        if pd.to_datetime(start_date) > pd.to_datetime(end_date):
+            # Set the error message text and make it visible
+            self.error_label.SetLabel("Start date should be earlier than end date.")
+            self.error_label.Show()
+            self.Layout()  # Update the frame layout to show the error label
+            return
+        else:
+            # Clear the error message and hide the error label
+            self.error_label.SetLabel("")
+            self.error_label.Hide()
+            self.Layout()  # Update the frame layout to hide the error label
 
         print("Start Date:", start_date)
         print("End Date:", end_date)
